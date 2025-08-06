@@ -55,3 +55,6 @@ jobs:
           password: ${{ secrets.EC2_PASSWORD }}
           script: |
             set -e
+            cd /home/project
+            docker-compose pull app
+            docker-compose up -d app
