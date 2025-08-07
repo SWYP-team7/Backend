@@ -1,3 +1,10 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+logging:
+  file:
+    path: /logs
+  logback:
+    rollingpolicy:
+      max-history: 7
