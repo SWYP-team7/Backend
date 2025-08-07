@@ -56,5 +56,5 @@ jobs:
           script: |
             set -e
             cd /home/project
-            docker-compose pull app
-            docker-compose up -d app
+            docker compose pull
+            docker compose up -d
