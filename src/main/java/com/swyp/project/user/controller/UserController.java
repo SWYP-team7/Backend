@@ -32,7 +32,7 @@ public class UserController {
 	}
 
 	@Operation(summary = "친구 추가", description = "친구 코드로 친구 추가 요청을 보냅니다.")
-	@PostMapping("/me/friends/request")
+	@PostMapping("/me/friends/requests")
 	public ResponseEntity<ApiResponse<Void>> sendFriendRequest(@RequestBody UserFriendRequest request) {
 		return ResponseEntity.ok(ApiResponse.success());
 	}
@@ -40,6 +40,12 @@ public class UserController {
 	@Operation(summary = "친구 목록 확인", description = "친구 리스트를 받습니다.")
 	@GetMapping("/me/friends")
 	public ResponseEntity<ApiResponse<UserFriendsListResponse>> getFriendsList() {
+		return ResponseEntity.ok(ApiResponse.success());
+	}
+
+	@Operation(summary = "친구 요청 목록 확인", description = "나에게 친구 요청을 보낸 유저의 리스트를 받습니다.")
+	@GetMapping("/me/friends/requests")
+	public ResponseEntity<ApiResponse<UserFriendsListResponse>> getFriendsRequestList() {
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 }
