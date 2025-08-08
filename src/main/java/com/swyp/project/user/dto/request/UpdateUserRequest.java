@@ -1,4 +1,4 @@
-package com.swyp.project.user.dto;
+package com.swyp.project.user.dto.request;
 
 import java.time.LocalDateTime;
 
