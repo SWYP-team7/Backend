@@ -37,5 +37,13 @@ out/
 .vscode/
 
 ## 환경변수
-.env
+src/main/resources/.env
 
+# Flyway migration lock
+flyway_schema_history.lock
+
+# DS_Store
+.DS_Store
+._.DS_Store
+**/.DS_Store
+**/._.DS_Store
