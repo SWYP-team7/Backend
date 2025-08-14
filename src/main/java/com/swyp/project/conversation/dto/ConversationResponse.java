@@ -10,15 +10,13 @@ import lombok.NoArgsConstructor;
 public class ConversationResponse {
 
 	public record Create(
-		long conversationId,
-		List<CardInfo> cardPool
+		long conversationId
 	) {}
-
-	public record CardInfo(Long cardId, String content, int level, String swipeType, String source) {}
 
 	public record End(
 			long conversationId,
-			long reportId
+			long reportId,
+			int durationSeconds
 	) {
 	}
 
@@ -32,12 +30,21 @@ public class ConversationResponse {
 	) {}
 
 	public record ParticipantInfo(
-		String userCode,
+		Long userId,
 		String name,
-		boolean isMember
+		boolean isUser
 	) {}
 
-	public record ReportAnalysis() {
+	public record ReportAnalysis(
+		List<String> participantNames,
+		String category,
+		List<String> keywords,
+		LocalDateTime createdAt,
+		int durationSeconds,
+		int numQuestions,
+		int numHearts
+
+	) {
 	}
 
 	public record History(
@@ -72,4 +79,30 @@ public class ConversationResponse {
 		Long nextCursor,
 		boolean hasNext
 	) {}
+
+	public record ReportRecommendation(
+		String nextTopicRecommendation
+	) {
+	}
+
+	public record ReportSummary(
+		String summary
+	) {
+	}
+
+	public record AudioUploadUrlResponse(
+		String uploadUrl
+	) {
+	}
+
+	public record Category(
+		Long id,
+		String content
+	) {
+	}
+
+	public record Keyword(
+		Long id,
+		String content
+	){}
 }

@@ -48,4 +48,10 @@ public class UserController {
 	public ResponseEntity<ApiResponse<UserFriendsListResponse>> getFriendsRequestList() {
 		return ResponseEntity.ok(ApiResponse.success());
 	}
+
+	// PATCH /api/users/me/devices/touch
+	// 사용자 앱 실행 or 로그인 시 last_login_at을 갱신하라는 api
+
+	// POST /api/users/me/devices
+	// 알림 보내기 위한 주소 등록 api
 }

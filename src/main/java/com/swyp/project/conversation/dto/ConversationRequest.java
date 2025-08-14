@@ -10,16 +10,17 @@ public class ConversationRequest {
 
 	public record Create(
 		List<ParticipantInfo> participantsInfo,
-		List<Long> categoryIds,
-		List<KeywordInfo> keywords
+		Long category,
+		List<KeywordInfo> keywords,
+		String relationship,
+		int intimacyLevel
 	) {}
 
 	public record ParticipantInfo(
-		String userCode,      // 회원이면 코드, 비회원이면 null
-		String nonUserName,   // 비회원이면 이름, 회원이면 null
-		String relationship,
-		int intimacyLevel
-		){}
+		Long userId, // 비회원이면 null
+		String userName,
+		boolean isUser
+	){}
 
 	// 직접 입력: {id: null, content: "영화"}
 	// 기존 키워드 선택: {id: 101, content: null}
