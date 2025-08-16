@@ -30,13 +30,13 @@ public class ConversationController {
 	@PostMapping
 	public ResponseEntity<ApiResponse<ConversationResponse.Create>> createConversation(
 		@Valid  @RequestBody ConversationRequest.Create request) {
-		ConversationResponse.Create response = new ConversationResponse.Create(1L);
+		ConversationResponse.Create response = new ConversationResponse.Create(1L, "jobId", "sseUrl");
 		return ResponseEntity.accepted().body(ApiResponse.success(response));
 	}
 
-	@Operation(summary = "대화 카드 생성", description = "새 질문 카드를 생성합니다.")
-	@GetMapping("/{conversationId}/subscribe")
-	public SseEmitter subscribeToConversation(@PathVariable Long conversationId){
+	@Operation(summary = "sse 경로 구독", description = "해당 경로로 sse를 구독합니다.")
+	@GetMapping("/{jobId}/subscribe")
+	public SseEmitter subscribeToConversation(@PathVariable String jobId){
 		SseEmitter emitter = new SseEmitter(60_000L);// 60초 임시
 		return emitter;
 	}
@@ -126,6 +126,7 @@ public class ConversationController {
 	public ResponseEntity<ApiResponse<ConversationResponse.Category>> getConversationCategories(){
 		return ResponseEntity.ok(ApiResponse.success());
 	}
+
 	@Operation(summary = "대화 키워드 목록 조회", description = "대화 시작 전 선택할 키워드를 조회합니다.")
 	@GetMapping("/keywords")
 	public ResponseEntity<ApiResponse<ConversationResponse.Keyword>> getConversationKeywords(){

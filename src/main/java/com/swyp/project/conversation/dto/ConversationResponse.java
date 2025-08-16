@@ -10,7 +10,9 @@ import lombok.NoArgsConstructor;
 public class ConversationResponse {
 
 	public record Create(
-		long conversationId
+		long conversationId,
+		String jobId,
+		String sseUrl
 	) {}
 
 	public record End(
