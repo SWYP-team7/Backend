@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swyp.project.common.auth.UserContext;
@@ -13,29 +14,31 @@ import com.swyp.project.common.exception.ErrorCode;
 import com.swyp.project.common.exception.JwtValidationException;
 
 import io.jsonwebtoken.Claims;
-import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class JwtAuthenticationFilter implements Filter {
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-	private static final int BEARER_PREFIX_LENGTH = 7;
+	private static final String BEARER = "Bearer ";
 
 	private final JwtUtil jwtUtil;
+	private final ObjectMapper objectMapper;
 
 	@Override
-	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
-		throws IOException, ServletException {
+	protected boolean shouldNotFilter(HttpServletRequest request) {
+		String requestUri = request.getRequestURI();
+		return isPermitAllPath(requestUri);
+	}
 
-		HttpServletRequest httpRequest = (HttpServletRequest)servletRequest;
-		HttpServletResponse httpResponse = (HttpServletResponse)servletResponse;
+	@Override
+	protected void doFilterInternal(HttpServletRequest httpRequest, HttpServletResponse httpResponse,
+		FilterChain filterChain)
+		throws IOException, ServletException {
 
 		String requestUri = httpRequest.getRequestURI();
 		String method = httpRequest.getMethod();
@@ -43,12 +46,6 @@ public class JwtAuthenticationFilter implements Filter {
 		// OPTIONS 요청 우회
 		if ("OPTIONS".equalsIgnoreCase(method)) {
 			httpResponse.setStatus(HttpServletResponse.SC_OK);
-			return;
-		}
-
-		// 인증 예외 경로 우회
-		if (isPermitAllPath(requestUri)) {
-			filterChain.doFilter(httpRequest, httpResponse);
 			return;
 		}
 
@@ -62,7 +59,7 @@ public class JwtAuthenticationFilter implements Filter {
 		}
 
 		// 토큰 유효성 검사
-		String accessToken = authHeader.substring(BEARER_PREFIX_LENGTH);
+		String accessToken = authHeader.substring(BEARER.length());
 		try {
 			Claims claims = jwtUtil.validateToken(accessToken);
 			UserContext.set(
@@ -75,7 +72,8 @@ public class JwtAuthenticationFilter implements Filter {
 			);
 		} catch (Exception e) {
 			writeJsonResponse(httpResponse,
-				ApiResponse.failure(ErrorCode.INTERNAL_SERVER_ERROR.getMessage(), ErrorCode.INTERNAL_SERVER_ERROR.name())
+				ApiResponse.failure(ErrorCode.INTERNAL_SERVER_ERROR.getMessage(),
+					ErrorCode.INTERNAL_SERVER_ERROR.name())
 			);
 		} finally {
 			UserContext.clear();
@@ -89,7 +87,7 @@ public class JwtAuthenticationFilter implements Filter {
 	private void writeJsonResponse(HttpServletResponse response, ApiResponse<Void> dto) throws IOException {
 		response.setStatus(HttpStatus.UNAUTHORIZED.value());
 		response.setContentType("application/json; charset=UTF-8");
-		String json = new ObjectMapper().writeValueAsString(dto);
+		String json = objectMapper.writeValueAsString(dto);
 		response.getWriter().write(json);
 	}
 }
