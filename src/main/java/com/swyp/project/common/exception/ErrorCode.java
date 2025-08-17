@@ -4,6 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum ErrorCode {
+	// 서버 오류
+	INTERNAL_SERVER_ERROR(500, "서버에 오류가 발생했습니다."),
 
 	// JWT 토큰 관련
 	INVALID_JWT_SIGNATURE(401, "잘못된 JWT 서명입니다."),
