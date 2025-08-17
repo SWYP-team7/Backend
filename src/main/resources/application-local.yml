@@ -6,4 +6,4 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jwt:
-    access-key: dev-access-secret-key-that-is-long-enough
+    secret-key: dev-access-secret-key-that-is-long-enough

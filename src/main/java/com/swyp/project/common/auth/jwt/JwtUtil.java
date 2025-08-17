@@ -27,7 +27,7 @@ public class JwtUtil {
 
 	public static final long ACCESS_EXPIRATION_TIME = 86400000;
 
-	public JwtUtil(@Value("${spring.jwt.access-key}") String accessSecretKey) {
+	public JwtUtil(@Value("${spring.jwt.secret-key}") String accessSecretKey) {
 		this.accessSecretKey = accessSecretKey;
 	}
 
