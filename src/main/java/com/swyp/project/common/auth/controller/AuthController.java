@@ -27,7 +27,7 @@ public class AuthController {
 	@PostMapping("/oauth/kakao")
 	public ResponseEntity<ApiResponse<AuthResponse>> signup(AuthRequest authRequest) {
 		// Implement signup logic here
-		return ResponseEntity.ok(ApiResponse.success(new AuthResponse("accessToken123")));
+		return ResponseEntity.ok(ApiResponse.success(new AuthResponse("accessToken123", true)));
 	}
 
 	@Operation(
