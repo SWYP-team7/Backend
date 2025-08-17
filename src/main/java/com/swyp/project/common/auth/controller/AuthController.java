@@ -1,4 +1,4 @@
-package com.swyp.project.common.auth;
+package com.swyp.project.common.auth.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
