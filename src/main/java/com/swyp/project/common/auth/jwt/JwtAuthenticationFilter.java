@@ -52,29 +52,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		// Authorization 헤더 검사
 		String authHeader = httpRequest.getHeader("Authorization");
 		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-			writeJsonResponse(httpResponse,
-				ApiResponse.failure(ErrorCode.EMPTY_JWT_TOKEN.getMessage(), ErrorCode.EMPTY_JWT_TOKEN.name())
-			);
+			writeJsonResponse(httpResponse,ApiResponse.failure(ErrorCode.EMPTY_JWT_TOKEN.getMessage(),
+				ErrorCode.EMPTY_JWT_TOKEN.name()));
 			return;
 		}
 
 		// 토큰 유효성 검사
 		String accessToken = authHeader.substring(BEARER.length());
+
 		try {
 			Claims claims = jwtUtil.validateToken(accessToken);
-			UserContext.set(
-				new UserInfo(Long.valueOf(claims.getSubject())));
+			UserContext.set(new UserInfo(Long.valueOf(claims.getSubject())));
 
 			filterChain.doFilter(httpRequest, httpResponse);
 		} catch (JwtValidationException e) {
-			writeJsonResponse(httpResponse,
-				ApiResponse.failure(e.getMessage(), ErrorCode.INVALID_JWT_TOKEN.name())
-			);
+			writeJsonResponse(httpResponse, ApiResponse.failure(e.getMessage(), ErrorCode.INVALID_JWT_TOKEN.name()));
 		} catch (Exception e) {
 			writeJsonResponse(httpResponse,
-				ApiResponse.failure(ErrorCode.INTERNAL_SERVER_ERROR.getMessage(),
-					ErrorCode.INTERNAL_SERVER_ERROR.name())
-			);
+				ApiResponse.failure(ErrorCode.INTERNAL_SERVER_ERROR.getMessage(),ErrorCode.INTERNAL_SERVER_ERROR.name()));
 		} finally {
 			UserContext.clear();
 		}
