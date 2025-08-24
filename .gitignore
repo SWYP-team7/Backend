@@ -38,6 +38,7 @@ out/
 
 ## 환경변수
 .env.*
+.env
 
 # Flyway migration lock
 flyway_schema_history.lock

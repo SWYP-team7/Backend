@@ -30,3 +30,7 @@ logging:
 
 springdoc:
   use-fqn: true
+
+openai:
+  api:
+    key:${OPENAI_API_KEY}
