@@ -121,37 +121,53 @@ public class ChatGptClient implements AiClient { //todo: 예외처리및 수정 
 	private static final List<Map<String, String>> INPUT = List.of(Map.of("role", "system", "content", PROMPT_TEMPLATE));
 
 	public AiResponse.GeneratedQuestions generateQuestions(String prompt) {
-		String requestBody;
-		try {
-			requestBody = objectMapper.writeValueAsString(Map.of(
-				"model", MODEL,
-				"input", INPUT,
-				"text", objectMapper.readValue(SCHEMA_JSON, new TypeReference<>() {
-				})
-			));
-			log.info("requestBody: {}", requestBody);
-		} catch (JsonProcessingException e) {
-			throw new RuntimeException("JSON 직렬화 실패", e); //todo: 예외처리하기
-		}
-		String rawResponse;
-		try{
-			rawResponse = chatGptWebClient.post()
-				.uri("/responses")
-				.bodyValue(requestBody)
-				.retrieve()
-				.bodyToMono(String.class)
-				.block(Duration.ofSeconds(60));
-		} catch (WebClientResponseException e) {
-			log.error("OpenAI 4xx/5xx status={}, body={}", e.getStatusCode(), e.getResponseBodyAsString());
-			throw e;
-		}
+		String requestBody = createRequestBody();
 
-		log.info("rawResponse: {}", rawResponse);
+		String rawResponse = sendRequest(requestBody);
 
 		if (rawResponse == null || rawResponse.isBlank()) {
 			throw new RuntimeException("API 응답이 비어있습니다."); //todo: 예외처리하기
 		}
 
+		return parseResponse(rawResponse);
+	}
+
+	private String createRequestBody(){
+		try {
+			String requestBody = objectMapper.writeValueAsString(Map.of(
+				"model", MODEL,
+				"input", INPUT,
+				"text", objectMapper.readValue(SCHEMA_JSON, new TypeReference<>() {
+				})
+			));
+
+			log.info("requestBody: {}", requestBody);
+
+			return requestBody;
+		} catch (JsonProcessingException e) {
+			throw new RuntimeException("JSON 직렬화 실패", e); //todo: 예외처리하기
+		}
+	}
+
+	private String sendRequest(String requestBody){
+		try{
+			String rawResponse = chatGptWebClient.post()
+				.uri("/responses")
+				.bodyValue(requestBody)
+				.retrieve()
+				.bodyToMono(String.class)
+				.block(Duration.ofSeconds(60));
+
+			log.info("rawResponse: {}", rawResponse);
+
+			return rawResponse;
+		} catch (WebClientResponseException e) {
+			log.error("OpenAI 4xx/5xx status={}, body={}", e.getStatusCode(), e.getResponseBodyAsString());
+			throw e;
+		}
+	}
+
+	private AiResponse.GeneratedQuestions parseResponse(String rawResponse){
 		try {
 			JsonNode root = objectMapper.readTree(rawResponse);
 			String text = root.at("/output/0/content/0/text").asText();
