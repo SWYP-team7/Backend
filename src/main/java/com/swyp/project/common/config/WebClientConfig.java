@@ -50,7 +50,7 @@ public class WebClientConfig {
 
 		return builder
 			.clone()
-			.baseUrl("https://api.openai.com/v1/responses") // ✅ OpenAI API 엔드포인트
+			.baseUrl("https://api.openai.com/v1") // ✅ OpenAI API 엔드포인트
 			.clientConnector(new ReactorClientHttpConnector(httpClient))
 			.defaultHeaders(h -> {
 				h.setBearerAuth(openAiApiKey); // ✅ API Key 설정
