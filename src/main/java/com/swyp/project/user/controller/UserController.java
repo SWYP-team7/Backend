@@ -9,45 +9,52 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.swyp.project.common.dto.ApiResponse;
-import com.swyp.project.user.dto.request.UpdateUserKeywordsRequest;
-import com.swyp.project.user.dto.request.UpdateUserRequest;
-import com.swyp.project.user.dto.request.UserFriendRequest;
-import com.swyp.project.user.dto.response.UserFriendsListResponse;
+import com.swyp.project.user.dto.UserRequest;
+import com.swyp.project.user.dto.UserResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-	@Operation(summary = "유저 기본 정보 수정", description = "로그인된 사용자의 기본 정보를 수정합니다.")
-	@PutMapping("/me/info")
-	public ResponseEntity<ApiResponse<Void>> updateUserInfo(@RequestBody UpdateUserRequest request) {
+
+	@Operation(summary = "내 프로필 상태 조회", description = "로그인된 사용자의 프로필 작성 완료 여부를 확인합니다.")
+	@GetMapping("/me/profile-status")
+	public ResponseEntity<ApiResponse<UserResponse.ProfileStatus>> getProfileStatus() {
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 
-	@Operation(summary = "유저 키워드 수정", description = "로그인된 사용자의 키워드를 수정합니다.")
-	@PutMapping("/me/keywords")
-	public ResponseEntity<ApiResponse<Void>> updateUserKeywords(@RequestBody UpdateUserKeywordsRequest request) {
+	@Operation(summary = "최초 프로필 생성", description = "온보딩 과정에서 사용자의 프로필 정보를 생성하고 계정을 활성화합니다.")
+	@PostMapping("/me/profile")
+	public ResponseEntity<ApiResponse<Void>> createProfile(@Valid @RequestBody UserRequest.CreateProfile request) {
+		// profile_completed 값 true로 변경
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 
-	@Operation(summary = "친구 추가", description = "친구 코드로 친구 추가 요청을 보냅니다.")
-	@PostMapping("/me/friends/requests")
-	public ResponseEntity<ApiResponse<Void>> sendFriendRequest(@RequestBody UserFriendRequest request) {
+	@Operation(summary = "마이페이지 조회", description = "로그인된 사용자의 마이페이지를 조회합니다.")
+	@GetMapping("/me/profile")
+	public ResponseEntity<ApiResponse<UserResponse.Profile>> getProfile() {
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 
-	@Operation(summary = "친구 목록 확인", description = "친구 리스트를 받습니다.")
-	@GetMapping("/me/friends")
-	public ResponseEntity<ApiResponse<UserFriendsListResponse>> getFriendsList() {
+	@Operation(summary = "내 기본 정보 조회", description = "로그인된 사용자의 프로필 정보를 조회합니다.")
+	@GetMapping("/me/profile")
+	public ResponseEntity<ApiResponse<UserResponse.Profile>> getProfile() {
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 
-	@Operation(summary = "친구 요청 목록 확인", description = "나에게 친구 요청을 보낸 유저의 리스트를 받습니다.")
-	@GetMapping("/me/friends/requests")
-	public ResponseEntity<ApiResponse<UserFriendsListResponse>> getFriendsRequestList() {
+	@Operation(summary = "내 키워드 조회", description = "로그인된 사용자의 키워드 정보를 조회합니다.")
+	@GetMapping("/me/profile")
+	public ResponseEntity<ApiResponse<UserResponse.Keyword>> getKeyword() {
 		return ResponseEntity.ok(ApiResponse.success());
 	}
+
+	@Operation(summary = "내 프로필 수정", description = "로그인된 사용자의 프로필 정보를 수정합니다.")
+	@PutMapping("/me/profile")
+	public ResponseEntity<ApiResponse<Void>> updateProfile
+
+
 
 	// PATCH /api/users/me/devices/touch
 	// 사용자 앱 실행 or 로그인 시 last_login_at을 갱신하라는 api

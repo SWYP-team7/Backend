@@ -1,27 +1,39 @@
 -- V1__init.sql
-CREATE TABLE user (
-                      id BIGINT NOT NULL AUTO_INCREMENT,
-                      name VARCHAR(100) NOT NULL,
-                      email VARCHAR(255),
-                      birthdate DATE NOT NULL,
-                      gender VARCHAR(10) NOT NULL,
-                      provider VARCHAR(50) NOT NULL,
-                      provider_id VARCHAR(255) NOT NULL,
-                      user_code VARCHAR(50) NOT NULL UNIQUE,
-                      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                      updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                      deleted_at TIMESTAMP,
-                      PRIMARY KEY (id),
-                      UNIQUE KEY uk_user_provider (provider, provider_id)
+
+-- =======================================================================
+-- 1. USERS & PROFILES
+-- =======================================================================
+CREATE TABLE users (
+                       id BIGINT NOT NULL AUTO_INCREMENT,
+                       name VARCHAR(100),
+                       email VARCHAR(255),
+                       birthdate DATE,
+                       gender VARCHAR(10),
+                       profile_image_url VARCHAR(2048),
+                       provider VARCHAR(50) NOT NULL,
+                       provider_id VARCHAR(255) NOT NULL,
+                       profile_completed BOOLEAN NOT NULL DEFAULT FALSE,
+                       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                       updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                       PRIMARY KEY (id),
+                       UNIQUE KEY uk_user_provider (provider, provider_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE profile_keyword_category (
+                                          id BIGINT NOT NULL AUTO_INCREMENT,
+                                          name VARCHAR(100) NOT NULL UNIQUE,
+                                          display_order INT,
+                                          PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE profile_keyword (
                                  id BIGINT NOT NULL AUTO_INCREMENT,
+                                 category_id BIGINT NOT NULL,
                                  content VARCHAR(512) NOT NULL,
                                  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                 deleted_at TIMESTAMP,
                                  PRIMARY KEY (id),
-                                 UNIQUE KEY uk_profile_keyword_content (content(255))
+                                 UNIQUE KEY uk_profile_keyword_content (content(255)),
+                                 FOREIGN KEY (category_id) REFERENCES profile_keyword_category (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE user_profile_keyword (
@@ -30,47 +42,38 @@ CREATE TABLE user_profile_keyword (
                                       profile_keyword_id BIGINT NOT NULL,
                                       PRIMARY KEY (id),
                                       UNIQUE KEY uk_user_profile_keyword (user_id, profile_keyword_id),
-                                      FOREIGN KEY (user_id) REFERENCES user(id),
+                                      FOREIGN KEY (user_id) REFERENCES users(id),
                                       FOREIGN KEY (profile_keyword_id) REFERENCES profile_keyword(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE friend (
-                        id BIGINT NOT NULL AUTO_INCREMENT,
-                        user_id BIGINT NOT NULL,
-                        friend_id BIGINT NOT NULL,
-                        status VARCHAR(50) NOT NULL,
-                        PRIMARY KEY (id),
-                        UNIQUE KEY uk_friend_user_pair (user_id, friend_id),
-                        CONSTRAINT ck_friend_not_self CHECK (user_id <> friend_id),
-                        FOREIGN KEY (user_id) REFERENCES user(id),
-                        FOREIGN KEY (friend_id) REFERENCES user(id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
+-- =======================================================================
+-- 2. CONVERSATION CORE
+-- =======================================================================
 CREATE TABLE conversation (
                               id BIGINT NOT NULL AUTO_INCREMENT,
+                              creator_user_id BIGINT NOT NULL,
+                              relationship VARCHAR(50),
+                              intimacy_level INT,
                               created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                               ended_at TIMESTAMP,
-                              PRIMARY KEY (id)
+                              PRIMARY KEY (id),
+                              FOREIGN KEY (creator_user_id) REFERENCES users(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE participant (
                              id BIGINT NOT NULL AUTO_INCREMENT,
                              conversation_id BIGINT NOT NULL,
-                             user_id BIGINT, -- 회원인 경우 user.id, 비회원인 경우 NULL
-                             non_member_name VARCHAR(100), -- 비회원인 경우 사용할 이름 (예: "사용자1(비회원)")
-                             relationship VARCHAR(50) NOT NULL,
-                             intimacy_level INT,
+                             name VARCHAR(100) NOT NULL,
                              PRIMARY KEY (id),
-                             UNIQUE KEY uk_participant_conversation_user (conversation_id, user_id),
-                             FOREIGN KEY (conversation_id) REFERENCES conversation(id),
-                             FOREIGN KEY (user_id) REFERENCES user(id),
-                             CONSTRAINT chk_participant_type CHECK (user_id IS NOT NULL OR non_member_name IS NOT NULL)
-);
+                             FOREIGN KEY (conversation_id) REFERENCES conversation(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- =======================================================================
+-- 3. CONVERSATION METADATA & CONTENT
+-- =======================================================================
 CREATE TABLE category (
                           id BIGINT NOT NULL AUTO_INCREMENT,
                           name VARCHAR(1024) NOT NULL,
-                          deleted_at TIMESTAMP,
                           PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -78,7 +81,6 @@ CREATE TABLE conversation_keyword (
                                       id BIGINT NOT NULL AUTO_INCREMENT,
                                       content VARCHAR(512) NOT NULL,
                                       is_predefined BOOLEAN NOT NULL DEFAULT FALSE,
-                                      deleted_at TIMESTAMP,
                                       PRIMARY KEY (id),
                                       UNIQUE KEY uk_conversation_keyword_content (content(255))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -123,24 +125,27 @@ CREATE TABLE conversation_card_save (
                                         saved_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                         PRIMARY KEY (id),
                                         UNIQUE KEY uk_card_save_user_card (user_id, conversation_card_id),
-                                        FOREIGN KEY (user_id) REFERENCES user(id),
+                                        FOREIGN KEY (user_id) REFERENCES users(id),
                                         FOREIGN KEY (conversation_card_id) REFERENCES conversation_card(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- =======================================================================
+-- 4. CONVERSATION LOG & REPORT
+-- =======================================================================
 CREATE TABLE conversation_log (
                                   id BIGINT NOT NULL AUTO_INCREMENT,
                                   conversation_id BIGINT NOT NULL,
-                                  user_id BIGINT NOT NULL,
+                                  participant_name VARCHAR(100) NOT NULL,
                                   utterance_text TEXT,
                                   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                   PRIMARY KEY (id),
-                                  FOREIGN KEY (conversation_id) REFERENCES conversation(id),
-                                  FOREIGN KEY (user_id) REFERENCES user(id)
+                                  FOREIGN KEY (conversation_id) REFERENCES conversation(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE conversation_report (
                                      id BIGINT NOT NULL AUTO_INCREMENT,
                                      conversation_id BIGINT NOT NULL,
+                                     share_uuid VARCHAR(36) UNIQUE,
                                      duration_seconds INT,
                                      num_questions INT,
                                      num_hearts INT,
@@ -151,9 +156,11 @@ CREATE TABLE conversation_report (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE conversation_report_keyword (
+                                             id BIGINT NOT NULL AUTO_INCREMENT,
                                              conversation_report_id BIGINT NOT NULL,
                                              conversation_keyword_id BIGINT NOT NULL,
-                                             PRIMARY KEY (conversation_report_id, conversation_keyword_id),
+                                             PRIMARY KEY (id),
+                                             UNIQUE KEY uk_report_keyword_pair (conversation_report_id, conversation_keyword_id),
                                              FOREIGN KEY (conversation_report_id) REFERENCES conversation_report(id),
                                              FOREIGN KEY (conversation_keyword_id) REFERENCES conversation_keyword(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

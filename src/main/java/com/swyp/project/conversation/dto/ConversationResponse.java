@@ -32,9 +32,8 @@ public class ConversationResponse {
 	) {}
 
 	public record ParticipantInfo(
-		Long userId,
-		String name,
-		boolean isUser
+		String userCode,
+		String name
 	) {}
 
 	public record ReportAnalysis(
@@ -107,4 +106,12 @@ public class ConversationResponse {
 		Long id,
 		String content
 	){}
+
+	public record ShareResponse(
+		String shareUrl
+	) {
+	}
+
+	public record PublicReportResponse() {
+	}
 }
