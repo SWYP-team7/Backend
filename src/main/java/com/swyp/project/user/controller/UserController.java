@@ -33,8 +33,8 @@ public class UserController {
 	}
 
 	@Operation(summary = "마이페이지 조회", description = "로그인된 사용자의 마이페이지를 조회합니다.")
-	@GetMapping("/me/profile")
-	public ResponseEntity<ApiResponse<UserResponse.Profile>> getProfile() {
+	@GetMapping("/me")
+	public ResponseEntity<ApiResponse<UserResponse.Profile>> getMyPage() {
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 
@@ -44,15 +44,13 @@ public class UserController {
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 
-	@Operation(summary = "내 키워드 조회", description = "로그인된 사용자의 키워드 정보를 조회합니다.")
+	/*@Operation(summary = "내 키워드 조회", description = "로그인된 사용자의 키워드 정보를 조회합니다.")
 	@GetMapping("/me/profile")
 	public ResponseEntity<ApiResponse<UserResponse.Keyword>> getKeyword() {
 		return ResponseEntity.ok(ApiResponse.success());
-	}
+	}*/
 
-	@Operation(summary = "내 프로필 수정", description = "로그인된 사용자의 프로필 정보를 수정합니다.")
-	@PutMapping("/me/profile")
-	public ResponseEntity<ApiResponse<Void>> updateProfile
+
 
 
 
