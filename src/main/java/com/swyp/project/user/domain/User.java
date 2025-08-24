@@ -55,6 +55,10 @@ public class User {
 	@Column(name = "gender", length = 10)
 	private String gender;
 
-	@Column(name = "code", length = 20)
-	private String code;
+	@Column(name = "profile_image_url", length = 2048)
+	private String profileImageUrl;
+
+	@Column(name = "profile_completed")
+	private boolean profileCompleted;
+
 }
