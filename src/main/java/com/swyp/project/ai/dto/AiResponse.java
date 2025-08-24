@@ -13,7 +13,7 @@ public class AiResponse {
 	) {}
 
 	public record QuestionList(
-		String keyword,
+		List<String> keywords,
 		List<Question> questions
 	) {}
 
