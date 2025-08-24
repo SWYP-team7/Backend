@@ -2,6 +2,7 @@ package com.swyp.project.common.config;
 
 import java.time.Duration;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -13,6 +14,9 @@ import reactor.netty.http.client.HttpClient;
 
 @Configuration
 public class WebClientConfig {
+
+	@Value("${openai.api.key}")
+	private String openAiApiKey;
 
 	@Bean
 	public WebClient kakaoWebClient(WebClient.Builder builder) {
@@ -35,6 +39,24 @@ public class WebClientConfig {
 		return builder
 			.clone() // 1. 독립적인 설정을 위해 builder를 복제
 			.baseUrl("https://kapi.kakao.com")
+			.build();
+	}
+
+	@Bean
+	public WebClient chatGptWebClient(WebClient.Builder builder) {
+		HttpClient httpClient = HttpClient.create()
+			.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000) // 연결 타임아웃 5초
+			.responseTimeout(Duration.ofSeconds(60));
+
+		return builder
+			.clone()
+			.baseUrl("https://api.openai.com/v1/responses") // ✅ OpenAI API 엔드포인트
+			.clientConnector(new ReactorClientHttpConnector(httpClient))
+			.defaultHeaders(h -> {
+				h.setBearerAuth(openAiApiKey); // ✅ API Key 설정
+				h.setAccept(java.util.List.of(MediaType.APPLICATION_JSON));
+				h.setContentType(MediaType.APPLICATION_JSON);
+			})
 			.build();
 	}
 }
