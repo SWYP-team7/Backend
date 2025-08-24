@@ -12,19 +12,32 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import com.swyp.project.ai.dto.AiResponse;
 import com.swyp.project.common.dto.ApiResponse;
 import com.swyp.project.conversation.dto.ConversationRequest;
 import com.swyp.project.conversation.dto.ConversationResponse;
+import com.swyp.project.conversation.service.ConversationService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/conversations")
 @Tag(name = "Conversation")
+@RequiredArgsConstructor
 public class ConversationController {
+
+	private final ConversationService conversationService;
+
+	@Operation(summary = "임시 대화 생성 API", description = "ChatGpt 기능 확인용.")
+	@PostMapping
+	public ResponseEntity<ApiResponse<AiResponse.GeneratedQuestions>> createConversationTemp() {
+		AiResponse.GeneratedQuestions response = conversationService.generateQuestions();
+		return ResponseEntity.accepted().body(ApiResponse.success(response));
+	}
 
 	@Operation(summary = "대화 생성", description = "새 대화 세션을 생성합니다.")
 	@PostMapping
