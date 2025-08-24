@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -20,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class ChatGptClient implements AiClient {
+public class ChatGptClient implements AiClient { //todo: 예외처리및 수정 필요
 
 	@Qualifier("chatGptWebClient")
 	private final WebClient chatGptWebClient;
@@ -41,7 +42,7 @@ public class ChatGptClient implements AiClient {
 			'상대방과 있으면 더 ‘나답다’ 느끼는 순간이 있나요?'
 			'시간이 더 지난 후에도 상대방과의 관계에서 잊지 않았으면 하는 건 무엇인가요?'
 			2. 문장 길이
-			각 질문은 30~70자 이내로 작성합니다.
+			각 질문은 2개 이하의 문장으로, 총 30~70자 사이로 작성합니다.
 			3. 질문 구조 (심화 단계)
 			1단계: 가볍게 경험이나 상황을 묻는다.
 			2단계: 그 경험의 이유나 배경을 탐색한다.
@@ -51,8 +52,9 @@ public class ChatGptClient implements AiClient {
 			한 세트의 질문은 1개 또는 2개의 키워드를 사용합니다.
 			예시: 신뢰 / 관계+기억
 			5. 응답 생성
-			questions의 text는 줄바꿈이 있다면 줄바꿈 기호를 넣고, 없다면 넣지 않습니다.
-			해당 문장은 정상적인 문장이 되어야하고, 이상한 문장기호는 포함하면 안됩니다.
+			questions의 text에서 모든 문장의 끝에 줄바꿈 기호를 넣습니다.
+			해당 문장은 정상적인 문장이 되어야합니다.
+			모든 문장은 숫자나 한글, 그리고 물음표로만 되어있어야합니다.
 		""";
 
 	private static final String SCHEMA_JSON = """
@@ -68,7 +70,16 @@ public class ChatGptClient implements AiClient {
 					"items": {
 					  "type": "object",
 					  "properties": {
-						"keyword": { "type": "string" },
+						"keywords": {
+						"type": "array",
+						"items": {
+							  "type": "string",
+							  "minLength": 1,
+							  "maxLength": 10
+							},
+						"minItems": 1,
+						"maxItems": 2
+						 },
 						"questions": {
 						  "type": "array",
 						  "items": {
@@ -92,7 +103,7 @@ public class ChatGptClient implements AiClient {
 						  "maxItems": 4
 						}
 					  },
-					  "required": ["keyword", "questions"],
+					  "required": ["keywords", "questions"],
 					  "additionalProperties": false
 					},
 					"minItems": 5,
@@ -122,13 +133,18 @@ public class ChatGptClient implements AiClient {
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException("JSON 직렬화 실패", e); //todo: 예외처리하기
 		}
-
-		String rawResponse = chatGptWebClient.post()
-			.uri("/responses")
-			.bodyValue(requestBody)
-			.retrieve()
-			.bodyToMono(String.class)
-			.block(Duration.ofSeconds(60));
+		String rawResponse;
+		try{
+			rawResponse = chatGptWebClient.post()
+				.uri("/responses")
+				.bodyValue(requestBody)
+				.retrieve()
+				.bodyToMono(String.class)
+				.block(Duration.ofSeconds(60));
+		} catch (WebClientResponseException e) {
+			log.error("OpenAI 4xx/5xx status={}, body={}", e.getStatusCode(), e.getResponseBodyAsString());
+			throw e;
+		}
 
 		log.info("rawResponse: {}", rawResponse);
 
