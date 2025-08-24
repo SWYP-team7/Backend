@@ -10,6 +10,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swyp.project.ai.dto.AiResponse;
 
@@ -26,7 +27,7 @@ public class ChatGptClient implements AiClient {
 
 	private final ObjectMapper objectMapper;
 
-	private static final String MODEL = "gpt-4o";
+	private static final String MODEL = "gpt-4o-mini";
 
 	private static final String PROMPT_TEMPLATE = """
 			당신은 '깊은 대화를 위한 질문 생성기'입니다. 아래 입력값을 기반으로 총 5개의 질문 세트를 만드세요(각 세트 4문항, 총 20문항).
@@ -49,6 +50,9 @@ public class ChatGptClient implements AiClient {
 			4. 키워드 조건
 			한 세트의 질문은 1개 또는 2개의 키워드를 사용합니다.
 			예시: 신뢰 / 관계+기억
+			5. 응답 생성
+			questions의 text는 줄바꿈이 있다면 줄바꿈 기호를 넣고, 없다면 넣지 않습니다.
+			해당 문장은 정상적인 문장이 되어야하고, 이상한 문장기호는 포함하면 안됩니다.
 		""";
 
 	private static final String SCHEMA_JSON = """
@@ -97,24 +101,24 @@ public class ChatGptClient implements AiClient {
 				},
 				"required": ["questionLists"],
 				"additionalProperties": false
-			  }
-			},
+			  },
 			"strict": true
+			}
 		  }
 		""";
 
-	private final List<Map<String, String>> input = List.of(
-		Map.of("role", "system", "content", PROMPT_TEMPLATE));
+	private static final List<Map<String, String>> INPUT = List.of(Map.of("role", "system", "content", PROMPT_TEMPLATE));
 
 	public AiResponse.GeneratedQuestions generateQuestions(String prompt) {
 		String requestBody;
 		try {
 			requestBody = objectMapper.writeValueAsString(Map.of(
 				"model", MODEL,
-				"input", input,
+				"input", INPUT,
 				"text", objectMapper.readValue(SCHEMA_JSON, new TypeReference<>() {
 				})
 			));
+			log.info("requestBody: {}", requestBody);
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException("JSON 직렬화 실패", e); //todo: 예외처리하기
 		}
@@ -126,14 +130,16 @@ public class ChatGptClient implements AiClient {
 			.bodyToMono(String.class)
 			.block(Duration.ofSeconds(60));
 
-		log.debug("rawResponse: {}", rawResponse);
+		log.info("rawResponse: {}", rawResponse);
 
 		if (rawResponse == null || rawResponse.isBlank()) {
 			throw new RuntimeException("API 응답이 비어있습니다."); //todo: 예외처리하기
 		}
 
 		try {
-			AiResponse.GeneratedQuestions aiResponse = objectMapper.readValue(rawResponse,AiResponse.GeneratedQuestions.class);
+			JsonNode root = objectMapper.readTree(rawResponse);
+			String text = root.at("/output/0/content/0/text").asText();
+			AiResponse.GeneratedQuestions aiResponse = objectMapper.readValue(text, AiResponse.GeneratedQuestions.class);
 
 			log.debug("contentJson: {}", aiResponse);
 
