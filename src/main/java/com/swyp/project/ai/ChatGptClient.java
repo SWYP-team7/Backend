@@ -1,6 +1,7 @@
 package com.swyp.project.ai;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -13,7 +14,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.swyp.project.ai.dto.AiRequest;
 import com.swyp.project.ai.dto.AiResponse;
+import com.swyp.project.conversation.dto.ConversationRequest;
+import com.swyp.project.user.dto.UserDto;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -118,10 +122,10 @@ public class ChatGptClient implements AiClient { //todo: 예외처리및 수정 
 		  }
 		""";
 
-	private static final List<Map<String, String>> INPUT = List.of(Map.of("role", "system", "content", PROMPT_TEMPLATE));
+	private static final Map<String, String> PROMPT_INPUT = Map.of("role", "system", "content", PROMPT_TEMPLATE);
 
-	public AiResponse.GeneratedQuestions generateQuestions(String prompt) {
-		String requestBody = createRequestBody();
+	public AiResponse.GeneratedQuestions generateQuestions(ConversationRequest.Create request, UserDto.Info userInfo) {
+		String requestBody = createRequestBody(request, userInfo);
 
 		String rawResponse = sendRequest(requestBody);
 
@@ -132,11 +136,16 @@ public class ChatGptClient implements AiClient { //todo: 예외처리및 수정 
 		return parseResponse(rawResponse);
 	}
 
-	private String createRequestBody(){
+	private String createRequestBody(ConversationRequest.Create request, UserDto.Info userInfo){
+		List<Map<String, String>> input = new ArrayList<>();
+		input.add(PROMPT_INPUT);
+
+		input.add(createConversationInfoInput(request));
+
 		try {
 			String requestBody = objectMapper.writeValueAsString(Map.of(
 				"model", MODEL,
-				"input", INPUT,
+				"input", input,
 				"text", objectMapper.readValue(SCHEMA_JSON, new TypeReference<>() {
 				})
 			));
@@ -179,6 +188,24 @@ public class ChatGptClient implements AiClient { //todo: 예외처리및 수정 
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException("API 응답 JSON 파싱 실패", e); //todo: 예외처리하기
 		}
+	}
+
+	private Map<String,String> createConversationInfoInput(ConversationRequest.Create request){
+		AiRequest.ConversationInfo conversationInfo = new AiRequest.ConversationInfo(
+			request.participantNames().size(),
+			request.relation(),
+			request.topic(),
+			request.keywords()
+		);
+
+		String parsedConversationInfo;
+		try{
+			parsedConversationInfo = objectMapper.writeValueAsString(conversationInfo);
+		} catch (JsonProcessingException e) {
+			throw new RuntimeException("API 응답 JSON 파싱 실패", e); //todo: 예외처리하기
+		}
+
+		return Map.of("role", "user", "content", parsedConversationInfo);
 	}
 }
 
