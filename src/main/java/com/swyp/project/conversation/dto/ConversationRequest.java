@@ -10,18 +10,12 @@ public class ConversationRequest {
 
 	public record Create(
 		List<String> participantNames,
-		Long categoryId,
-		List<KeywordInfo> keywords
+		String relation,
+		String topic,
+		List<String> keywords,
+		boolean allowRecording
 	) {}
 
-
-
-	// 직접 입력: {id: null, content: "영화"}
-	// 기존 키워드 선택: {id: 101, content: null}
-	public record KeywordInfo(
-		Long id,
-		String content
-	){}
 
 	public record End(List<CardDwellTime> dwellTimes) {
 	}
