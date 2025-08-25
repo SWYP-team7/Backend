@@ -11,6 +11,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +23,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
+@Table(name = "users")
 public class User {
 
 	@Id
@@ -29,7 +31,7 @@ public class User {
 	@Column(name = "id", nullable = false)
 	private Long id;
 
-	@Column(name = "name", nullable = false, length = 50)
+	@Column(name = "name", length = 50)
 	private String name;
 
 	@Column(name = "email", nullable = false, unique = true, length = 50)
@@ -59,6 +61,6 @@ public class User {
 	private String profileImageUrl;
 
 	@Column(name = "profile_completed")
-	private boolean profileCompleted;
+	private Boolean profileCompleted;
 
 }

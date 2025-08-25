@@ -9,20 +9,27 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.swyp.project.common.dto.ApiResponse;
+import com.swyp.project.user.UserService;
 import com.swyp.project.user.dto.UserRequest;
 import com.swyp.project.user.dto.UserResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
 public class UserController {
+
+	private final UserService userService;
+	private static final long TEMP_USER_ID = 1L;
 
 	@Operation(summary = "내 프로필 상태 조회", description = "로그인된 사용자의 프로필 작성 완료 여부를 확인합니다.")
 	@GetMapping("/me/profile-status")
 	public ResponseEntity<ApiResponse<UserResponse.ProfileStatus>> getProfileStatus() {
-		return ResponseEntity.ok(ApiResponse.success());
+		UserResponse.ProfileStatus response = userService.getProfileStatus(TEMP_USER_ID);
+		return ResponseEntity.ok(ApiResponse.success(response));
 	}
 
 	@Operation(summary = "최초 프로필 생성", description = "온보딩 과정에서 사용자의 프로필 정보를 생성하고 계정을 활성화합니다.")

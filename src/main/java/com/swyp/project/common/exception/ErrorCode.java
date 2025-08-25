@@ -20,6 +20,9 @@ public enum ErrorCode {
 
 	// ObjectMapper 관련
 	INVALID_FORMAT(400, "잘못된 형식의 데이터입니다. 파싱에 실패했습니다."),
+
+	// USER
+	USER_NOT_FOUND(404, "존재하지 않는 사용자입니다.")
 	;
 
 	private final int status;
