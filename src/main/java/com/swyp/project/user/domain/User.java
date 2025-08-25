@@ -63,4 +63,13 @@ public class User {
 	@Column(name = "profile_completed")
 	private Boolean profileCompleted;
 
+	public void updateProfile(String name, LocalDate birthdate, String gender){
+		this.name = name;
+		this.birthdate = birthdate;
+		this.gender = gender;
+	}
+
+	public void completeProfile() {
+		this.profileCompleted = true;
+	}
 }
