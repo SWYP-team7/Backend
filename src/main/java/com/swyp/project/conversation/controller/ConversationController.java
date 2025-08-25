@@ -34,8 +34,9 @@ public class ConversationController {
 
 	@Operation(summary = "임시 대화 생성 API", description = "ChatGpt 기능 확인용.")
 	@PostMapping("/temp")
-	public ResponseEntity<ApiResponse<AiResponse.GeneratedQuestions>> createConversationTemp() {
-		AiResponse.GeneratedQuestions response = conversationService.generateQuestions();
+	public ResponseEntity<ApiResponse<AiResponse.GeneratedQuestions>> createConversationTemp(
+		@Valid  @RequestBody ConversationRequest.Create request) {
+		AiResponse.GeneratedQuestions response = conversationService.generateQuestions(request);
 		return ResponseEntity.accepted().body(ApiResponse.success(response));
 	}
 
