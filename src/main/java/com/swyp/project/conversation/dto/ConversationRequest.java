@@ -11,7 +11,7 @@ public class ConversationRequest {
 	public record Create(
 		List<String> participantNames,
 		String relation,
-		String topic,
+		String category,
 		List<String> keywords,
 		boolean allowRecording
 	) {}

@@ -7,7 +7,7 @@ public class AiRequest {
 	public record ConversationInfo(
 		Integer participantCount,
 		String relation,
-		String topic,
+		String category,
 		List<String> keywords
 	) {
 	}
