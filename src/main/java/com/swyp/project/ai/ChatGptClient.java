@@ -16,6 +16,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swyp.project.ai.dto.AiRequest;
 import com.swyp.project.ai.dto.AiResponse;
+import com.swyp.project.common.exception.ApiResponseException;
+import com.swyp.project.common.exception.ErrorCode;
+import com.swyp.project.common.exception.InvalidFormatException;
 import com.swyp.project.conversation.dto.ConversationRequest;
 import com.swyp.project.user.dto.UserDto;
 
@@ -25,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class ChatGptClient implements AiClient { //todo: 예외처리및 수정 필요
+public class ChatGptClient implements AiClient {
 
 	@Qualifier("chatGptWebClient")
 	private final WebClient chatGptWebClient;
@@ -131,7 +134,7 @@ public class ChatGptClient implements AiClient { //todo: 예외처리및 수정 
 		String rawResponse = sendRequest(requestBody);
 
 		if (rawResponse == null || rawResponse.isBlank()) {
-			throw new RuntimeException("API 응답이 비어있습니다."); //todo: 예외처리하기
+			throw new ApiResponseException(ErrorCode.EMPTY_API_RESPONSE);
 		}
 
 		return parseResponse(rawResponse);
@@ -140,7 +143,6 @@ public class ChatGptClient implements AiClient { //todo: 예외처리및 수정 
 	private String createRequestBody(ConversationRequest.Create request, UserDto.Info userInfo){
 		List<Map<String, String>> input = new ArrayList<>();
 		input.add(PROMPT_INPUT);
-
 		input.add(createConversationInfoInput(request));
 
 		try {
@@ -155,7 +157,7 @@ public class ChatGptClient implements AiClient { //todo: 예외처리및 수정 
 
 			return requestBody;
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException("JSON 직렬화 실패", e); //todo: 예외처리하기
+			throw new InvalidFormatException(ErrorCode.INVALID_FORMAT);
 		}
 	}
 
@@ -173,7 +175,7 @@ public class ChatGptClient implements AiClient { //todo: 예외처리및 수정 
 			return rawResponse;
 		} catch (WebClientResponseException e) {
 			log.error("OpenAI 4xx/5xx status={}, body={}", e.getStatusCode(), e.getResponseBodyAsString());
-			throw e;
+			throw new ApiResponseException(ErrorCode.API_REQUEST_FAILED);
 		}
 	}
 
@@ -187,7 +189,7 @@ public class ChatGptClient implements AiClient { //todo: 예외처리및 수정 
 
 			return aiResponse;
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException("API 응답 JSON 파싱 실패", e); //todo: 예외처리하기
+			throw new InvalidFormatException(ErrorCode.INVALID_FORMAT);
 		}
 	}
 
@@ -203,7 +205,7 @@ public class ChatGptClient implements AiClient { //todo: 예외처리및 수정 
 		try{
 			parsedConversationInfo = objectMapper.writeValueAsString(conversationInfo);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException("API 응답 JSON 파싱 실패", e); //todo: 예외처리하기
+			throw new InvalidFormatException(ErrorCode.INVALID_FORMAT);
 		}
 
 		return Map.of("role", "user", "content", parsedConversationInfo);

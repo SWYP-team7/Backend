@@ -13,6 +13,13 @@ public enum ErrorCode {
 	UNSUPPORTED_JWT_TOKEN(401, "지원하지 않는 JWT 토큰입니다."),
 	INVALID_JWT_TOKEN(401, "JWT 토큰이 잘못되었습니다."),
 	EMPTY_JWT_TOKEN(401, "헤더에 JWT 토큰이 없습니다."),
+
+	// 외부 API 관련
+	EMPTY_API_RESPONSE(502, "외부 API로부터 응답이 없습니다."),
+	API_REQUEST_FAILED(502, "외부 API 요청에 실패했습니다."),
+
+	// ObjectMapper 관련
+	INVALID_FORMAT(400, "잘못된 형식의 데이터입니다. 파싱에 실패했습니다."),
 	;
 
 	private final int status;
