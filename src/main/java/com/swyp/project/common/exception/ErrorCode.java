@@ -22,7 +22,13 @@ public enum ErrorCode {
 	INVALID_FORMAT(400, "잘못된 형식의 데이터입니다. 파싱에 실패했습니다."),
 
 	// USER
-	USER_NOT_FOUND(404, "존재하지 않는 사용자입니다.")
+	USER_NOT_FOUND(404, "존재하지 않는 사용자입니다."),
+
+	// PROFILE
+	PROFILE_ALREADY_EXISTS(409, "이미 프로필 작성을 완료한 사용자입니다."),
+
+	// PROFILE KEYWORD
+	PROFILE_KEYWORD_NOT_FOUND(404, "존재하지 않는 프로필 키워드입니다.")
 	;
 
 	private final int status;
