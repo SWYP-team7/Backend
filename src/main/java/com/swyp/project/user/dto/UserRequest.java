@@ -9,11 +9,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserRequest {
 
-	public record CreateProfile(
+	public record UpsertProfile(
 		String name,
 		LocalDate birthdate,
 		String gender,
 		List<Long> keywordIds
 	) {
 	}
+
+
 }
