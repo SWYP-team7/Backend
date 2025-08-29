@@ -11,6 +11,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +23,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
+@Table(name = "users")
 public class User {
 
 	@Id
@@ -29,7 +31,7 @@ public class User {
 	@Column(name = "id", nullable = false)
 	private Long id;
 
-	@Column(name = "name", nullable = false, length = 50)
+	@Column(name = "name", length = 50)
 	private String name;
 
 	@Column(name = "email", nullable = false, unique = true, length = 50)
@@ -55,6 +57,19 @@ public class User {
 	@Column(name = "gender", length = 10)
 	private String gender;
 
-	@Column(name = "code", length = 20)
-	private String code;
+	@Column(name = "profile_image_url", length = 2048)
+	private String profileImageUrl;
+
+	@Column(name = "profile_completed")
+	private Boolean profileCompleted;
+
+	public void updateProfile(String name, LocalDate birthdate, String gender){
+		if(name != null) this.name = name;
+		if(birthdate != null) this.birthdate = birthdate;
+		if(gender != null) this.gender = gender;
+	}
+
+	public void completeProfile() {
+		this.profileCompleted = true;
+	}
 }
