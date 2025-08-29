@@ -28,7 +28,10 @@ public enum ErrorCode {
 	PROFILE_ALREADY_EXISTS(409, "이미 프로필 작성을 완료한 사용자입니다."),
 
 	// PROFILE KEYWORD
-	PROFILE_KEYWORD_NOT_FOUND(404, "존재하지 않는 프로필 키워드입니다.")
+	PROFILE_KEYWORD_NOT_FOUND(404, "존재하지 않는 프로필 키워드입니다."),
+
+	// CATEGORY
+	CATEGORY_NOT_FOUND(404, "존재하지 않는 카테고리입니다.")
 	;
 
 	private final int status;
