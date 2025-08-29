@@ -35,7 +35,7 @@ public class ChatGptClient implements AiClient {
 
 	private final ObjectMapper objectMapper;
 
-	private static final String MODEL = "gpt-5-mini";
+	private static final String MODEL = "gpt-4.1";
 
 	private static final String PROMPT_TEMPLATE = """
 	당신은 '깊은 대화를 위한 질문 생성기'입니다. 
@@ -93,6 +93,7 @@ public class ChatGptClient implements AiClient {
 	   5. 응답 형식 
 		  - JSON 데이터 형식
 		  - questions 배열 안에 text가 들어가며, 문장이 끝날 때 줄바꿈 기호 추가
+		  - 응답은 한국어로 하고, ?를 제외한 기호는 사용하지 않는다.
 		""";
 
 	private static final String SCHEMA_JSON = """
@@ -226,7 +227,7 @@ public class ChatGptClient implements AiClient {
 	private Map<String,String> createConversationInfoInput(ConversationRequest.Create request){
 		AiRequest.ConversationInfo conversationInfo = new AiRequest.ConversationInfo(
 			request.participantNames().size(),
-			request.relation(),
+			request.relationship(),
 			request.category(),
 			request.keywords()
 		);
