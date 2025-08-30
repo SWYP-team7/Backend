@@ -1,6 +1,7 @@
 package com.swyp.project.user.dto;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -29,4 +30,21 @@ public class UserResponse {
 		String email
 	){
 	}
+
+	public record ProfileKeywordByCategory(
+		List<UserResponse.CategoryInfo> categories
+	){}
+
+	@Builder
+	public record CategoryInfo(
+		String name,
+		List<UserResponse.ProfileKeywordInfo> keywords
+	){}
+
+	@Builder
+	public record ProfileKeywordInfo(
+		long id,
+		String content,
+		boolean isSelected
+	){}
 }

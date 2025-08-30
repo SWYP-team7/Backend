@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.swyp.project.common.dto.ApiResponse;
 import com.swyp.project.user.UserService;
-import com.swyp.project.user.dto.ProfileKeywordResponse;
 import com.swyp.project.user.dto.UserRequest;
 import com.swyp.project.user.dto.UserResponse;
 
@@ -24,7 +23,14 @@ public class UserController {
 
 	private final UserService userService;
 
-	@Operation(summary = "내 프로필 상태 조회", description = "로그인된 사용자의 프로필 작성 완료 여부를 확인합니다.")
+	@Operation(summary = "프로필 생성 및 수정", description = "프로필을 생성 및 수정합니다.")
+	@PatchMapping("/me/profile")
+	public ResponseEntity<ApiResponse<Void>> upsertProfile(@Valid @RequestBody UserRequest.UpsertProfile request) {
+		userService.upsertProfile(request);
+		return ResponseEntity.ok(ApiResponse.success());
+	}
+
+	/*@Operation(summary = "내 프로필 상태 조회", description = "로그인된 사용자의 프로필 작성 완료 여부를 확인합니다.")
 	@GetMapping("/me/profile-status")
 	public ResponseEntity<ApiResponse<UserResponse.ProfileStatus>> getProfileStatus() {
 		UserResponse.ProfileStatus response = userService.getProfileStatus();
@@ -33,17 +39,12 @@ public class UserController {
 
 	@Operation(summary = "프로필 키워드 전체 조회", description = "프로필 키워드를 조회합니다.")
 	@GetMapping("/profile-keywords")
-	public ResponseEntity<ApiResponse<ProfileKeywordResponse.ProfileKeywordByCategory>> getProfileKeyword() {
-		ProfileKeywordResponse.ProfileKeywordByCategory response = userService.getProfileKeyword();
+	public ResponseEntity<ApiResponse<UserResponse.ProfileKeywordByCategory>> getProfileKeyword() {
+		UserResponse.ProfileKeywordByCategory response = userService.getProfileKeyword();
 		return ResponseEntity.ok(ApiResponse.success(response));
 	}
 
-	@Operation(summary = "프로필 생성 및 수정", description = "프로필을 생성 및 수정합니다.")
-	@PatchMapping("/me/profile")
-	public ResponseEntity<ApiResponse<Void>> upsertProfile(@Valid @RequestBody UserRequest.UpsertProfile request) {
-		userService.upsertProfile(request);
-		return ResponseEntity.ok(ApiResponse.success());
-	}
+
 
 	@Operation(summary = "마이페이지 조회", description = "로그인된 사용자의 마이페이지를 조회합니다.")
 	@GetMapping("/me/summary")
@@ -57,5 +58,5 @@ public class UserController {
 	public ResponseEntity<ApiResponse<UserResponse.Profile>> getProfile() {
 		UserResponse.Profile response = userService.getProfile();
 		return ResponseEntity.ok(ApiResponse.success(response));
-	}
+	}*/
 }

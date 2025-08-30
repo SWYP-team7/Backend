@@ -13,7 +13,6 @@ import com.swyp.project.common.exception.UserNotFoundException;
 import com.swyp.project.user.domain.ProfileKeyword;
 import com.swyp.project.user.domain.User;
 import com.swyp.project.user.domain.UserProfileKeyword;
-import com.swyp.project.user.dto.ProfileKeywordResponse;
 import com.swyp.project.user.dto.UserRequest;
 import com.swyp.project.user.dto.UserResponse;
 import com.swyp.project.user.repository.ProfileKeywordRepository;
@@ -63,7 +62,7 @@ public class UserService {
 	}
 
 	@Transactional(readOnly = true)
-	public ProfileKeywordResponse.ProfileKeywordByCategory getProfileKeyword() {
+	public UserResponse.ProfileKeywordByCategory getProfileKeyword() {
 
 		Long loggedInUserId = UserContext.get().id();
 
@@ -77,25 +76,25 @@ public class UserService {
 		Map<String, List<ProfileKeyword>> keywordsByCategoryName = keywords.stream()
 			.collect(Collectors.groupingBy(ProfileKeyword::getCategoryName));
 
-		List<ProfileKeywordResponse.CategoryInfo> categoryInfos = keywordsByCategoryName.entrySet().stream()
+		List<UserResponse.CategoryInfo> categoryInfos = keywordsByCategoryName.entrySet().stream()
 			.map(entry -> {
 				String categoryName = entry.getKey();
-				List<ProfileKeywordResponse.ProfileKeywordInfo> keywordInfos = entry.getValue().stream()
-					.map(keyword -> ProfileKeywordResponse.ProfileKeywordInfo.builder()
+				List<UserResponse.ProfileKeywordInfo> keywordInfos = entry.getValue().stream()
+					.map(keyword -> UserResponse.ProfileKeywordInfo.builder()
 						.id(keyword.getId())
 						.content(keyword.getContent())
 						.isSelected(selectedKeywordIds.contains(keyword.getId()))
 						.build())
 					.collect(Collectors.toList());
 
-				return ProfileKeywordResponse.CategoryInfo.builder()
+				return UserResponse.CategoryInfo.builder()
 					.name(categoryName)
 					.keywords(keywordInfos)
 					.build();
 			})
 			.collect(Collectors.toList());
 
-		return new ProfileKeywordResponse.ProfileKeywordByCategory(categoryInfos);
+		return new UserResponse.ProfileKeywordByCategory(categoryInfos);
 	}
 
 	public UserResponse.Summary getSummary() {
