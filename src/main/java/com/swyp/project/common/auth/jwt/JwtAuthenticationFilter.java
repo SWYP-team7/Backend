@@ -38,7 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest httpRequest, HttpServletResponse httpResponse,
 		FilterChain filterChain)
-		throws IOException, ServletException {
+		throws IOException , ServletException {
 
 		String requestUri = httpRequest.getRequestURI();
 		String method = httpRequest.getMethod();
@@ -63,14 +63,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		try {
 			Claims claims = jwtUtil.validateToken(accessToken);
 			UserContext.set(new UserInfo(Long.valueOf(claims.getSubject())));
-
-			filterChain.doFilter(httpRequest, httpResponse);
 		} catch (JwtValidationException e) {
 			writeJsonResponse(httpResponse, ApiResponse.failure(e.getMessage(), ErrorCode.INVALID_JWT_TOKEN.name()));
-		} catch (Exception e) {
-			writeJsonResponse(httpResponse,
-				ApiResponse.failure(ErrorCode.INTERNAL_SERVER_ERROR.getMessage(),ErrorCode.INTERNAL_SERVER_ERROR.name()));
-		} finally {
+			return;
+		}
+
+		try {
+			filterChain.doFilter(httpRequest, httpResponse);
+		}finally {
 			UserContext.clear();
 		}
 	}
