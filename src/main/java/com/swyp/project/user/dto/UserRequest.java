@@ -23,9 +23,12 @@ public class UserRequest {
 		@Pattern(regexp = "^(MALE|FEMALE)$", message = "성별은 MALE 또는 FEMALE이어야 합니다.")
 		String gender,
 
-		List<Long> keywordIds
+		@Size(min = 1, message = "성향 & 성격 표현 키워드는 최소 1개입니다.")
+		List<String> personalityKeywords,
+		@Size(min = 1, message = "대화 스타일 키워드는 최소 1개입니다.")
+		List<String> conversationKeywords,
+		@Size(min = 1, message = "관심사 키워드는 최소 1개입니다.")
+		List<String> interestKeywords
 	) {
 	}
-
-
 }

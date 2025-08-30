@@ -20,7 +20,9 @@ import com.swyp.project.user.repository.UserProfileKeywordRepository;
 import com.swyp.project.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -42,23 +44,33 @@ public class UserService {
 
 		User user = findUser(loggedInUserId);
 
-		user.updateProfile(request.name(), request.birthdate(), request.gender());
+		if (request.name() != null && request.birthdate() != null && request.gender() != null) {
+			user.updateProfile(request.name(), request.birthdate(), request.gender());
+		}
 
-		if (request.keywordIds() != null) {
-			userProfileKeywordRepository.deleteByUserId(user.getId());
-			request.keywordIds().stream()
-				.map(keywordId -> profileKeywordRepository.findById(keywordId)
-					.orElseThrow(ProfileKeywordNotFoundException::new))
-				.map(keyword -> UserProfileKeyword.builder()
-					.user(user)
-					.profileKeyword(keyword)
-					.build())
-				.forEach(userProfileKeywordRepository::save);
+		if (request.personalityKeywords() != null && request.conversationKeywords() != null
+			&& request.interestKeywords() != null) {
+
+			userProfileKeywordRepository.deleteAll();
+			upsertProfileKeyword(request.personalityKeywords(), user);
+			upsertProfileKeyword(request.conversationKeywords(), user);
+			upsertProfileKeyword(request.interestKeywords(), user);
 		}
 
 		if (!user.getProfileCompleted()) {
 			user.completeProfile();
 		}
+	}
+
+	private void upsertProfileKeyword(List<String> keywords, User user) {
+		keywords.stream()
+			.map(keyword -> profileKeywordRepository.findByContent(keyword)
+				.orElseThrow(ProfileKeywordNotFoundException::new))
+			.map(keyword -> UserProfileKeyword.builder()
+				.user(user)
+				.profileKeyword(keyword)
+				.build())
+			.forEach(userProfileKeywordRepository::save);
 	}
 
 	@Transactional(readOnly = true)
@@ -123,5 +135,4 @@ public class UserService {
 	private User findUser(Long userId){
 		return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 	}
-
 }

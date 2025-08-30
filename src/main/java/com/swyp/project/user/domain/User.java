@@ -64,9 +64,9 @@ public class User {
 	private Boolean profileCompleted;
 
 	public void updateProfile(String name, LocalDate birthdate, String gender){
-		if(name != null) this.name = name;
-		if(birthdate != null) this.birthdate = birthdate;
-		if(gender != null) this.gender = gender;
+		this.name = name;
+		this.birthdate = birthdate;
+		this.gender = gender;
 	}
 
 	public void completeProfile() {
