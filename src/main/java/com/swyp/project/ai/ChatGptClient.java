@@ -92,7 +92,7 @@ public class ChatGptClient implements AiClient {
 
 	   5. 응답 형식 
 		  - JSON 데이터 형식
-		  - questions 배열 안에 text가 들어가며, 문장이 끝날 때 줄바꿈 기호 추가
+		  - questions 배열 안에 text가 들어간다.
 		  - 응답은 한국어로 하고, ?를 제외한 기호는 사용하지 않는다.
 		""";
 
