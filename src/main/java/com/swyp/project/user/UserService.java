@@ -13,6 +13,7 @@ import com.swyp.project.common.exception.UserNotFoundException;
 import com.swyp.project.user.domain.ProfileKeyword;
 import com.swyp.project.user.domain.User;
 import com.swyp.project.user.domain.UserProfileKeyword;
+import com.swyp.project.user.dto.UserDto;
 import com.swyp.project.user.dto.UserRequest;
 import com.swyp.project.user.dto.UserResponse;
 import com.swyp.project.user.repository.ProfileKeywordRepository;
@@ -130,6 +131,22 @@ public class UserService {
 			.birthdate(user.getBirthdate())
 			.gender(user.getGender())
 			.build();
+	}
+
+	public UserDto.Info getUserInfo(){
+		Long loggedInUserId = UserContext.get().id();
+
+		User user = findUser(loggedInUserId);
+
+		List<String> keywords = userProfileKeywordRepository.findByUserId(loggedInUserId).stream()
+			.map(upk -> upk.getProfileKeyword().getContent())
+			.toList();
+
+		return new UserDto.Info(
+			user.getGender(),
+			user.getBirthdate(),
+			keywords
+		);
 	}
 
 	private User findUser(Long userId){

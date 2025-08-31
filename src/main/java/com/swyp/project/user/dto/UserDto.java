@@ -1,5 +1,6 @@
 package com.swyp.project.user.dto;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import lombok.AccessLevel;
@@ -10,10 +11,8 @@ public class UserDto {
 
 	public record Info(
 		String gender,
-		Integer age,
-		List<String> traitKeywords,
-		List<String> conversationStyleKeywords,
-		List<String> interestKeywords
+		LocalDate birthDate,
+		List<String> keywords
 	) {
 	}
 }

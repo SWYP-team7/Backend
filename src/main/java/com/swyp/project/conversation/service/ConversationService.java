@@ -24,7 +24,9 @@ import com.swyp.project.conversation.repository.ConversationCardRepository;
 import com.swyp.project.conversation.repository.ConversationCardSaveRepository;
 import com.swyp.project.conversation.repository.ConversationRepository;
 import com.swyp.project.conversation.repository.ParticipantRepository;
+import com.swyp.project.user.UserService;
 import com.swyp.project.user.domain.User;
+import com.swyp.project.user.dto.UserDto;
 import com.swyp.project.user.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
@@ -33,6 +35,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class ConversationService {
+	private final UserService userService;
 	private final AiClient aiClient;
 	private final ConversationRepository conversationRepository;
 	private final CategoryRepository categoryRepository;
@@ -73,7 +76,8 @@ public class ConversationService {
 	}
 
 	public AiResponse.GeneratedQuestions generateQuestions(ConversationRequest.Create request) {
-		return aiClient.generateQuestions(request, null);
+		UserDto.Info userInfo = userService.getUserInfo();
+		return aiClient.generateQuestions(request, userInfo);
 	}
 
 	@Transactional
