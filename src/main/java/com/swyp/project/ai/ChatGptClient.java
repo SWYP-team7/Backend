@@ -211,17 +211,30 @@ public class ChatGptClient implements AiClient {
 	}
 
 	private AiResponse.GeneratedQuestions parseResponse(String rawResponse){
+		AiResponse.GeneratedQuestions aiResponse;
 		try {
 			JsonNode root = objectMapper.readTree(rawResponse);
 			String text = root.at("/output/0/content/0/text").asText();
-			AiResponse.GeneratedQuestions aiResponse = objectMapper.readValue(text, AiResponse.GeneratedQuestions.class);
+			aiResponse = objectMapper.readValue(text, AiResponse.GeneratedQuestions.class);
 
 			log.debug("contentJson: {}", aiResponse);
-
-			return aiResponse;
 		} catch (JsonProcessingException e) {
 			throw new InvalidFormatException(ErrorCode.INVALID_FORMAT);
 		}
+
+		return new AiResponse.GeneratedQuestions(
+			aiResponse.questionLists().stream()
+				.map(qList -> new AiResponse.QuestionList(
+					qList.keywords(),
+					qList.questions().stream()
+						.map(q -> new AiResponse.Question(
+							q.depth(),
+							q.text().replaceAll("[^a-zA-Z0-9가-힣?\\.\\s]", "").trim()
+						))
+						.toList()
+				))
+				.toList()
+		);
 	}
 
 	private Map<String,String> createConversationInfoInput(ConversationRequest.Create request){
