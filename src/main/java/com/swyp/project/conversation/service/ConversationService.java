@@ -10,16 +10,18 @@ import com.swyp.project.ai.AiClient;
 import com.swyp.project.ai.dto.AiResponse;
 import com.swyp.project.common.auth.UserContext;
 import com.swyp.project.common.exception.CategoryNotFound;
+import com.swyp.project.common.exception.ConversationCardNotFound;
 import com.swyp.project.common.exception.ConversationNotFound;
 import com.swyp.project.common.exception.UserNotFoundException;
 import com.swyp.project.conversation.domain.Category;
 import com.swyp.project.conversation.domain.Conversation;
 import com.swyp.project.conversation.domain.ConversationCard;
+import com.swyp.project.conversation.domain.ConversationCardSave;
 import com.swyp.project.conversation.domain.Participant;
 import com.swyp.project.conversation.dto.ConversationRequest;
-import com.swyp.project.conversation.dto.ConversationResponse;
 import com.swyp.project.conversation.repository.CategoryRepository;
 import com.swyp.project.conversation.repository.ConversationCardRepository;
+import com.swyp.project.conversation.repository.ConversationCardSaveRepository;
 import com.swyp.project.conversation.repository.ConversationRepository;
 import com.swyp.project.conversation.repository.ParticipantRepository;
 import com.swyp.project.user.domain.User;
@@ -37,6 +39,7 @@ public class ConversationService {
 	private final ParticipantRepository participantRepository;
 	private final UserRepository userRepository;
 	private final ConversationCardRepository conversationCardRepository;
+	private final ConversationCardSaveRepository conversationCardSaveRepository;
 
 	@Transactional
 	public Long createConversation(ConversationRequest.Create request) {
@@ -73,6 +76,7 @@ public class ConversationService {
 		return aiClient.generateQuestions(request, null);
 	}
 
+	@Transactional
 	public void saveGeneratedQuestions(AiResponse.GeneratedQuestions generatedQuestions, Long conversationId) {
 		Conversation conversation = conversationRepository.findById(conversationId)
 			.orElseThrow(ConversationNotFound::new);
@@ -96,6 +100,21 @@ public class ConversationService {
 		}
 
 		conversationCardRepository.saveAll(conversationCards);
+	}
+
+	@Transactional
+	public void saveConversationCard(Long conversationId, ConversationRequest.ConversationCard request) {
+		User user = findUser();
+		ConversationCard conversationCard = conversationCardRepository.findByConversationIdAndOrderIndexAndDepth(
+			conversationId, request.orderIndex(),
+			request.depth()).orElseThrow(ConversationCardNotFound::new);
+
+		ConversationCardSave conversationCardSave = ConversationCardSave.builder()
+			.user(user)
+			.conversationCard(conversationCard)
+			.build();
+
+		conversationCardSaveRepository.save(conversationCardSave);
 	}
 
 	private User findUser() {

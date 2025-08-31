@@ -56,7 +56,7 @@ public class ConversationController {
 	@PostMapping("/{conversationId}/saved-cards")
 	public ResponseEntity<ApiResponse<Void>> saveCard(
 		@PathVariable Long conversationId, @Valid @RequestBody ConversationRequest.ConversationCard request) {
-
+		conversationService.saveConversationCard(conversationId, request);
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 

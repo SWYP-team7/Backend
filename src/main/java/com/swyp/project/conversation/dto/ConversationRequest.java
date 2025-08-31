@@ -20,7 +20,7 @@ public class ConversationRequest {
 	}
 
 	public record ConversationCard(
-		int cardIndex,
+		int orderIndex,
 		int depth
 	) {}
 }
