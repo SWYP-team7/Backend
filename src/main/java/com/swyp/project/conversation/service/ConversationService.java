@@ -10,19 +10,24 @@ import com.swyp.project.ai.dto.AiResponse;
 import com.swyp.project.common.auth.UserContext;
 import com.swyp.project.common.exception.CategoryNotFound;
 import com.swyp.project.common.exception.ConversationCardNotFound;
+import com.swyp.project.common.exception.ConversationKeywordNotFound;
 import com.swyp.project.common.exception.ConversationNotFound;
 import com.swyp.project.common.exception.UserNotFoundException;
 import com.swyp.project.conversation.domain.Category;
 import com.swyp.project.conversation.domain.Conversation;
 import com.swyp.project.conversation.domain.ConversationCard;
 import com.swyp.project.conversation.domain.ConversationCardSave;
+import com.swyp.project.conversation.domain.ConversationKeyword;
 import com.swyp.project.conversation.domain.Participant;
+import com.swyp.project.conversation.domain.SelectedConversationKeyword;
 import com.swyp.project.conversation.dto.ConversationRequest;
 import com.swyp.project.conversation.repository.CategoryRepository;
 import com.swyp.project.conversation.repository.ConversationCardRepository;
 import com.swyp.project.conversation.repository.ConversationCardSaveRepository;
+import com.swyp.project.conversation.repository.ConversationKeywordRepository;
 import com.swyp.project.conversation.repository.ConversationRepository;
 import com.swyp.project.conversation.repository.ParticipantRepository;
+import com.swyp.project.conversation.repository.SelectedConversationKeywordRepository;
 import com.swyp.project.user.UserService;
 import com.swyp.project.user.domain.User;
 import com.swyp.project.user.dto.UserDto;
@@ -40,6 +45,8 @@ public class ConversationService {
 	private final CategoryRepository categoryRepository;
 	private final ParticipantRepository participantRepository;
 	private final UserRepository userRepository;
+	private final ConversationKeywordRepository conversationKeywordRepository;
+	private final SelectedConversationKeywordRepository selectedConversationKeywordRepository;
 	private final ConversationCardRepository conversationCardRepository;
 	private final ConversationCardSaveRepository conversationCardSaveRepository;
 
@@ -58,6 +65,29 @@ public class ConversationService {
 			.build();
 
 		Conversation savedConversation = conversationRepository.save(conversation);
+
+		// 키워드 저장
+		List<String> keywords = request.keywords().stream()
+			.map(String::trim)
+			.distinct()
+			.toList();
+
+		for (String keyword : keywords) {
+			ConversationKeyword conversationKeyword = conversationKeywordRepository.findByContent(keyword)
+				.orElseGet(() -> conversationKeywordRepository.save(
+					ConversationKeyword.builder()
+						.content(keyword)
+						.isPredefined(false)
+						.build()
+				));
+
+			SelectedConversationKeyword selectedConversationKeyword = SelectedConversationKeyword.builder()
+				.conversation(savedConversation)
+				.conversationKeyword(conversationKeyword)
+				.build();
+
+			selectedConversationKeywordRepository.save(selectedConversationKeyword);
+		}
 
 		// participant 저장
 		List<String> participantNames = request.participantNames().stream()
