@@ -34,7 +34,7 @@ public class ConversationService {
 	private final UserRepository userRepository;
 
 	@Transactional
-	public ConversationResponse.Create createConversation(ConversationRequest.Create request){
+	public Long createConversation(ConversationRequest.Create request){
 		// todo: 키워드 내용은 없기 때문에 추가해야함
 		User user = findUser();
 
@@ -60,13 +60,7 @@ public class ConversationService {
 
 		participantRepository.saveAll(entities);
 
-		String uuid = UUID.randomUUID().toString();
-
-		return new ConversationResponse.Create(
-			savedConversation.getId(),
-			uuid,
-			"/api/conversations/" + uuid + "/subscribe"
-		);
+		return savedConversation.getId();
 	}
 
 	public AiResponse.GeneratedQuestions generateQuestions(ConversationRequest.Create request) {

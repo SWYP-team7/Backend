@@ -3,6 +3,8 @@ package com.swyp.project.conversation.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.swyp.project.ai.dto.AiResponse;
+
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -11,14 +13,11 @@ public class ConversationResponse {
 
 	public record Create(
 		long conversationId,
-		String jobId,
-		String sseUrl
+		AiResponse.GeneratedQuestions generatedQuestions
 	) {}
 
 	public record End(
-			long conversationId,
-			long reportId,
-			int durationSeconds
+			long conversationId
 	) {
 	}
 
@@ -28,12 +27,7 @@ public class ConversationResponse {
 	}
 
 	public record  ParticipantInfos(
-		List<ParticipantInfo> participantInfos
-	) {}
-
-	public record ParticipantInfo(
-		String userCode,
-		String name
+		List<String> participantNames
 	) {}
 
 	public record ReportAnalysis(
@@ -44,36 +38,33 @@ public class ConversationResponse {
 		int durationSeconds,
 		int numQuestions,
 		int numHearts
-
+		// 키워드 분석 추가
 	) {
 	}
 
 	public record History(
-		List<Summary> conversations,
-		CursorInfo cursorInfo
+		List<Summary> conversations
 	) {
 	}
 	public record Summary(
 		Long conversationId,
 		String title,
-		LocalDateTime endedAt,
+		LocalDateTime createdAt,
 		int durationSeconds,
-		String mainCategory
+		String category,
+		List<String> keywords
 	) {}
 
 
 	public record SavedCards(
-		List<SavedCardInfo> savedCards,
-		CursorInfo cursorInfo
+		List<SavedCardInfo> savedCards
 	) {
 	}
 
 	public record SavedCardInfo(
-		Long saveId,
 		Long cardId,
 		String content,
-		String keyword,
-		LocalDateTime savedAt
+		List<String> keywords
 	) {}
 
 	public record CursorInfo(

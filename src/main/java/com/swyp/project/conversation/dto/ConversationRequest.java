@@ -16,11 +16,11 @@ public class ConversationRequest {
 	) {}
 
 
-	public record End(List<CardDwellTime> dwellTimes) {
+	public record End(List<Double> dwellTimes) {
 	}
 
-	public record CardDwellTime(
-		Long cardId,
-		double durationSeconds
-	){}
+	public record ConversationCard(
+		int cardIndex,
+		int depth
+	) {}
 }
