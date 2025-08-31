@@ -175,6 +175,7 @@ public class ChatGptClient implements AiClient {
 		List<Map<String, String>> input = new ArrayList<>();
 		input.add(PROMPT_INPUT);
 		input.add(createConversationInfoInput(request));
+		input.add(createUserInfoInput(userInfo));
 
 		try {
 			String requestBody = objectMapper.writeValueAsString(Map.of(
@@ -253,6 +254,17 @@ public class ChatGptClient implements AiClient {
 		}
 
 		return Map.of("role", "user", "content", parsedConversationInfo);
+	}
+
+	private Map<String,String> createUserInfoInput(UserDto.Info userInfo){
+		String parsedUserInfo;
+		try{
+			parsedUserInfo = objectMapper.writeValueAsString(userInfo);
+		} catch (JsonProcessingException e) {
+			throw new InvalidFormatException(ErrorCode.INVALID_FORMAT);
+		}
+
+		return Map.of("role", "user", "content", parsedUserInfo);
 	}
 }
 
