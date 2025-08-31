@@ -8,5 +8,5 @@ import com.swyp.project.conversation.domain.ConversationCard;
 
 public interface ConversationCardRepository extends JpaRepository<ConversationCard, Long> {
 
-	Optional<ConversationCard> findByConversationIdAndOrderIndexAndDepth(long conversationId, int orderIndex, int depth);
+	Optional<ConversationCard> findByConversationIdAndOrderIndexAndLevel(long conversationId, int orderIndex, int depth);
 }

@@ -2,7 +2,6 @@ package com.swyp.project.conversation.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -109,7 +108,7 @@ public class ConversationService {
 	@Transactional
 	public void saveConversationCard(Long conversationId, ConversationRequest.ConversationCard request) {
 		User user = findUser();
-		ConversationCard conversationCard = conversationCardRepository.findByConversationIdAndOrderIndexAndDepth(
+		ConversationCard conversationCard = conversationCardRepository.findByConversationIdAndOrderIndexAndLevel(
 			conversationId, request.orderIndex(),
 			request.depth()).orElseThrow(ConversationCardNotFound::new);
 
