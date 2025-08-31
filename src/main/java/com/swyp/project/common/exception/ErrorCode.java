@@ -32,6 +32,9 @@ public enum ErrorCode {
 
 	// CATEGORY
 	CATEGORY_NOT_FOUND(404, "존재하지 않는 카테고리입니다.")
+
+	// CONVERSATION
+	,CONVERSATION_NOT_FOUND(404, "존재하지 않는 대화입니다.")
 	;
 
 	private final int status;

@@ -46,8 +46,9 @@ public class ConversationController {
 
 		long conversationId = conversationService.createConversation(request);
 		AiResponse.GeneratedQuestions questions = conversationService.generateQuestions(request);
-		ConversationResponse.Create response = new ConversationResponse.Create(conversationId, questions);
+		conversationService.saveGeneratedQuestions(questions, conversationId);
 
+		ConversationResponse.Create response = new ConversationResponse.Create(conversationId, questions);
 		return ResponseEntity.accepted().body(ApiResponse.success(response));
 	}
 
