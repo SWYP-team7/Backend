@@ -33,7 +33,7 @@ public class UserService {
 	private final UserProfileKeywordRepository userProfileKeywordRepository;
 
 	public UserResponse.ProfileStatus getProfileStatus() {
-		Long loggedInUserId = UserContext.get().id();
+		Long loggedInUserId = UserContext.get().socialId();
 
 		User user = findUser(loggedInUserId);
 		return new UserResponse.ProfileStatus(user.getProfileCompleted());
@@ -41,7 +41,7 @@ public class UserService {
 
 	@Transactional
 	public void upsertProfile(UserRequest.UpsertProfile request) {
-		Long loggedInUserId = UserContext.get().id();
+		Long loggedInUserId = UserContext.get().socialId();
 
 		User user = findUser(loggedInUserId);
 
@@ -77,12 +77,13 @@ public class UserService {
 	@Transactional(readOnly = true)
 	public UserResponse.ProfileKeywordByCategory getProfileKeyword() {
 
-		Long loggedInUserId = UserContext.get().id();
+		Long loggedInUserId = UserContext.get().socialId();
+		User user = findUser(loggedInUserId);
 
 		List<ProfileKeyword> keywords = profileKeywordRepository.findAll();
 
 		// 유저 키워드 id 목록
-		List<Long> selectedKeywordIds = userProfileKeywordRepository.findByUserId(loggedInUserId).stream()
+		List<Long> selectedKeywordIds = userProfileKeywordRepository.findByUserId(user.getId()).stream()
 			.map(userProfileKeyword -> userProfileKeyword.getProfileKeyword().getId())
 			.toList();
 
@@ -111,7 +112,7 @@ public class UserService {
 	}
 
 	public UserResponse.Summary getSummary() {
-		Long loggedInUserId = UserContext.get().id();
+		Long loggedInUserId = UserContext.get().socialId();
 
 		User user = findUser(loggedInUserId);
 		return UserResponse.Summary.builder()
@@ -122,7 +123,7 @@ public class UserService {
 	}
 
 	public UserResponse.Profile getProfile() {
-		Long loggedInUserId = UserContext.get().id();
+		Long loggedInUserId = UserContext.get().socialId();
 
 		User user = findUser(loggedInUserId);
 		return UserResponse.Profile.builder()
@@ -134,7 +135,7 @@ public class UserService {
 	}
 
 	public UserDto.Info getUserInfo(){
-		Long loggedInUserId = UserContext.get().id();
+		Long loggedInUserId = UserContext.get().socialId();
 
 		User user = findUser(loggedInUserId);
 
@@ -150,6 +151,6 @@ public class UserService {
 	}
 
 	private User findUser(Long userId){
-		return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+		return userRepository.findBySocialId(userId).orElseThrow(UserNotFoundException::new);
 	}
 }

@@ -151,6 +151,6 @@ public class ConversationService {
 	}
 
 	private User findUser() {
-		return userRepository.findById(UserContext.get().id()).orElseThrow(UserNotFoundException::new);
+		return userRepository.findBySocialId(UserContext.get().socialId()).orElseThrow(UserNotFoundException::new);
 	}
 }
