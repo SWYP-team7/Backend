@@ -16,7 +16,7 @@ public class ConversationRequest {
 	) {}
 
 
-	public record End(List<Double> dwellTimes) {
+	public record End(Double dwellTime) {
 	}
 
 	public record ConversationCard(
