@@ -30,12 +30,12 @@ public class AuthController {
 		return ResponseEntity.ok(ApiResponse.success(new AuthResponse("accessToken123", true)));
 	}
 
-	@Operation(
-		summary = "임시 로그인",
-		description = "JWT 발급"
-	)
-	@PostMapping("/oauth/temp-jwt")
-	public ResponseEntity<ApiResponse<AuthResponse>> tempLogin() {
-		return ResponseEntity.ok(ApiResponse.success(authService.tempLogin()));
-	}
+	// @Operation(
+	// 	summary = "임시 로그인",
+	// 	description = "JWT 발급"
+	// )
+	// @PostMapping("/oauth/temp-jwt")
+	// public ResponseEntity<ApiResponse<AuthResponse>> tempLogin() {
+	// 	return ResponseEntity.ok(ApiResponse.success(authService.tempLogin()));
+	// }
 }
