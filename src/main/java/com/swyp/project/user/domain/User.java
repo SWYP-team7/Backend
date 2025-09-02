@@ -48,6 +48,9 @@ public class User {
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
 
+	@Column(name = "social_id")
+	private Long socialId;
+
 	@Column(name = "provider", length = 20)
 	private String provider;
 
