@@ -16,7 +16,7 @@ public class AiRequest {
 		Integer seconds,
 		Integer questions,
 		Integer hearts,
-		List<String> selectedTopics
+		String selectedTopic
 	){
 	}
 
