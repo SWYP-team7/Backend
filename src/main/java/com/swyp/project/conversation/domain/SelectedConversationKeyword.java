@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-@Table(name = "conversation_keyword")
+@Table(name = "selected_conversation_keyword")
 public class SelectedConversationKeyword {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
