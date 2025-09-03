@@ -18,4 +18,11 @@ public class AiResponse {
 	) {}
 
 	public record Question(int depth, String text){}
+
+	public record GeneratedReport(
+		String comment,
+		String nextTopic
+	){
+	}
+
 }
