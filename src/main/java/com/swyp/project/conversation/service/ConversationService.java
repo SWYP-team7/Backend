@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.swyp.project.ai.AiClient;
 import com.swyp.project.ai.dto.AiRequest;
@@ -12,8 +13,8 @@ import com.swyp.project.ai.dto.AiResponse;
 import com.swyp.project.common.auth.UserContext;
 import com.swyp.project.common.exception.CategoryNotFound;
 import com.swyp.project.common.exception.ConversationCardNotFound;
-import com.swyp.project.common.exception.ConversationKeywordNotFound;
 import com.swyp.project.common.exception.ConversationNotFound;
+import com.swyp.project.common.exception.ConversationReportNotFound;
 import com.swyp.project.common.exception.UserNotFoundException;
 import com.swyp.project.conversation.domain.Category;
 import com.swyp.project.conversation.domain.Conversation;
@@ -38,7 +39,6 @@ import com.swyp.project.user.domain.User;
 import com.swyp.project.user.dto.UserDto;
 import com.swyp.project.user.repository.UserRepository;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -116,13 +116,33 @@ public class ConversationService {
 		return aiClient.generateQuestions(request, userInfo);
 	}
 
+
+	@Transactional(readOnly = true)
 	public ConversationResponse.ReportAnalysis findReport(Long conversationId) {
 
 		ConversationReport report = conversationReportRepository.findByConversationId(conversationId)
-			.orElseThrow(ConversationNotFound::new);
+			.orElseThrow(ConversationReportNotFound::new);
 
+		Conversation conversation = report.getConversation();
+		List<String> conversationKeywordNames = selectedConversationKeywordRepository.findByConversationId(
+			conversationId).stream().map(sck -> sck.getConversationKeyword().getContent()).toList();
 
+		List<String> participantNames = participantRepository.findByConversationId(conversationId)
+			.stream()
+			.map(Participant::getName)
+			.toList();
 
+		return new ConversationResponse.ReportAnalysis(
+			participantNames,
+			conversation.getCategory().getContent(),
+			conversationKeywordNames,
+			conversation.getCreatedAt(),
+			report.getDurationSeconds(),
+			report.getNumQuestions(),
+			report.getNumHearts(),
+			report.getComment(),
+			report.getNextRecommendedTopic()
+		);
 	}
 
 	@Transactional
