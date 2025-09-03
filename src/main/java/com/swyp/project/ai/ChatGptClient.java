@@ -144,7 +144,7 @@ public class ChatGptClient implements AiClient {
 		- 도파민
 		  
 		[추천 기준]
-		- 선택된 주제는 제외하고 나머지 중 1개만 추천
+		- 무조건 추천 가능 주제 목록에서 추천을 하세요
 		""";
 
 	private static final String SCHEMA_JSON = """
@@ -212,6 +212,7 @@ public class ChatGptClient implements AiClient {
 		{
 		  "format": {
 			"type": "json_schema",
+			"name": "report",
 			"schema": {
 			  "type": "object",
 			  "properties": {
@@ -235,9 +236,11 @@ public class ChatGptClient implements AiClient {
 			}
 		  }
 		}
-""";
+		""";
 
 	private static final Map<String, String> PROMPT_INPUT = Map.of("role", "system", "content", PROMPT_TEMPLATE);
+	private static final Map<String, String> REPORT_PROMPT_INPUT = Map.of("role", "system", "content",
+		REPORT_PROMPT_TEMPLATE);
 
 	public AiResponse.GeneratedQuestions generateQuestions(ConversationRequest.Create request, UserDto.Info userInfo) {
 		String requestBody = createRequestBody(request, userInfo);
@@ -346,5 +349,65 @@ public class ChatGptClient implements AiClient {
 
 		return Map.of("role", "user", "content", parsedUserInfo);
 	}
+
+	@Override
+	public AiResponse.GeneratedReport generateReport(AiRequest.ReportInfo request) {
+		String requestBody = createRequestBody(request);
+
+		String rawResponse = sendRequest(requestBody);
+
+		if (rawResponse == null || rawResponse.isBlank()) {
+			throw new ApiResponseException(ErrorCode.EMPTY_API_RESPONSE);
+		}
+
+		return parseReportResponse(rawResponse);
+	}
+
+	private AiResponse.GeneratedReport parseReportResponse(String rawResponse) {
+		AiResponse.GeneratedReport aiResponse;
+		try {
+			JsonNode root = objectMapper.readTree(rawResponse);
+			String text = root.at("/output/0/content/0/text").asText();
+			aiResponse = objectMapper.readValue(text, AiResponse.GeneratedReport.class);
+
+			log.debug("contentJson: {}", aiResponse);
+			return aiResponse;
+		} catch (JsonProcessingException e) {
+			throw new InvalidFormatException(ErrorCode.INVALID_FORMAT);
+		}
+	}
+
+	private String createRequestBody(AiRequest.ReportInfo request){
+		List<Map<String, String>> input = new ArrayList<>();
+		input.add(REPORT_PROMPT_INPUT);
+		input.add(createReportInfoInput(request));
+
+		try {
+			String requestBody = objectMapper.writeValueAsString(Map.of(
+				"model", MODEL,
+				"input", input,
+				"text", objectMapper.readValue(REPORT_SCHEMA_JSON, new TypeReference<>() {
+				})
+			));
+
+			log.info("requestBody: {}", requestBody);
+
+			return requestBody;
+		} catch (JsonProcessingException e) {
+			throw new InvalidFormatException(ErrorCode.INVALID_FORMAT);
+		}
+	}
+
+	private Map<String, String> createReportInfoInput(AiRequest.ReportInfo request) {
+		String parsedReportInfo;
+		try{
+			parsedReportInfo = objectMapper.writeValueAsString(request);
+		} catch (JsonProcessingException e) {
+			throw new InvalidFormatException(ErrorCode.INVALID_FORMAT);
+		}
+
+		return Map.of("role", "user", "content", parsedReportInfo);
+	}
+
 }
 

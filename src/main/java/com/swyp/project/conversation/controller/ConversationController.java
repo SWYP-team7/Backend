@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.swyp.project.ai.dto.AiRequest;
 import com.swyp.project.ai.dto.AiResponse;
 import com.swyp.project.common.dto.ApiResponse;
 import com.swyp.project.conversation.dto.ConversationRequest;
@@ -38,6 +39,16 @@ public class ConversationController {
 	// 	AiResponse.GeneratedQuestions response = conversationService.generateQuestions(request);
 	// 	return ResponseEntity.accepted().body(ApiResponse.success(response));
 	// }
+
+	@Operation(summary = "임시 리포트 생성 API", description = "ChatGpt 기능 확인용.")
+	@PostMapping("/temp")
+	public ResponseEntity<ApiResponse<AiResponse.GeneratedReport>> createReportTemp(
+		@Valid  @RequestBody AiRequest.ReportInfo request) {
+		AiResponse.GeneratedReport response = conversationService.generatedReport(request);
+		return ResponseEntity.accepted().body(ApiResponse.success(response));
+	}
+
+
 
 	@Operation(summary = "대화 생성", description = "새 대화 세션을 생성합니다.")
 	@PostMapping

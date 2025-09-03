@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.swyp.project.ai.AiClient;
+import com.swyp.project.ai.dto.AiRequest;
 import com.swyp.project.ai.dto.AiResponse;
 import com.swyp.project.common.auth.UserContext;
 import com.swyp.project.common.exception.CategoryNotFound;
@@ -107,6 +108,10 @@ public class ConversationService {
 	public AiResponse.GeneratedQuestions generateQuestions(ConversationRequest.Create request) {
 		UserDto.Info userInfo = userService.getUserInfo();
 		return aiClient.generateQuestions(request, userInfo);
+	}
+
+	public AiResponse.GeneratedReport generatedReport(AiRequest.ReportInfo request) {
+		return aiClient.generateReport(request);
 	}
 
 	@Transactional
