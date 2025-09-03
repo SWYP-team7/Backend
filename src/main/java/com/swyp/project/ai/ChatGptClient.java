@@ -37,6 +37,9 @@ public class ChatGptClient implements AiClient {
 
 	private static final String MODEL = "gpt-4.1";
 
+	private static final String CHAR_REGEX = "[^a-zA-Z0-9가-힣&?!.,\\s]";
+
+
 	private static final String PROMPT_TEMPLATE = """
 	당신은 '깊은 대화를 위한 질문 생성기'입니다. 
 	   아래 입력값을 기반으로 총 5개의 질문 세트를 만드세요 (각 세트 4문항, 총 20문항).
@@ -371,7 +374,12 @@ public class ChatGptClient implements AiClient {
 			aiResponse = objectMapper.readValue(text, AiResponse.GeneratedReport.class);
 
 			log.debug("contentJson: {}", aiResponse);
-			return aiResponse;
+
+			return new AiResponse.GeneratedReport(
+				aiResponse.comment().replaceAll(CHAR_REGEX, "").trim(),
+				aiResponse.nextTopic().replaceAll(CHAR_REGEX, "").trim()
+			);
+
 		} catch (JsonProcessingException e) {
 			throw new InvalidFormatException(ErrorCode.INVALID_FORMAT);
 		}
