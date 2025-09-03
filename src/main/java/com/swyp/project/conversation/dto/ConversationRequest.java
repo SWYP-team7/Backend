@@ -16,7 +16,10 @@ public class ConversationRequest {
 	) {}
 
 
-	public record End(Double dwellTime) {
+	public record End(
+		Integer durationSeconds,
+		Integer numHearts
+	) {
 	}
 
 	public record ConversationCard(

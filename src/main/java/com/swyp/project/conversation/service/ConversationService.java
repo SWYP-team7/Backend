@@ -2,6 +2,7 @@ package com.swyp.project.conversation.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -19,13 +20,16 @@ import com.swyp.project.conversation.domain.Conversation;
 import com.swyp.project.conversation.domain.ConversationCard;
 import com.swyp.project.conversation.domain.ConversationCardSave;
 import com.swyp.project.conversation.domain.ConversationKeyword;
+import com.swyp.project.conversation.domain.ConversationReport;
 import com.swyp.project.conversation.domain.Participant;
 import com.swyp.project.conversation.domain.SelectedConversationKeyword;
 import com.swyp.project.conversation.dto.ConversationRequest;
+import com.swyp.project.conversation.dto.ConversationResponse;
 import com.swyp.project.conversation.repository.CategoryRepository;
 import com.swyp.project.conversation.repository.ConversationCardRepository;
 import com.swyp.project.conversation.repository.ConversationCardSaveRepository;
 import com.swyp.project.conversation.repository.ConversationKeywordRepository;
+import com.swyp.project.conversation.repository.ConversationReportRepository;
 import com.swyp.project.conversation.repository.ConversationRepository;
 import com.swyp.project.conversation.repository.ParticipantRepository;
 import com.swyp.project.conversation.repository.SelectedConversationKeywordRepository;
@@ -40,6 +44,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class ConversationService {
+	public static final int TOTAL_QUESTION_COUNT = 20;
 	private final UserService userService;
 	private final AiClient aiClient;
 	private final ConversationRepository conversationRepository;
@@ -50,6 +55,7 @@ public class ConversationService {
 	private final SelectedConversationKeywordRepository selectedConversationKeywordRepository;
 	private final ConversationCardRepository conversationCardRepository;
 	private final ConversationCardSaveRepository conversationCardSaveRepository;
+	private final ConversationReportRepository conversationReportRepository;
 
 	@Transactional
 	public Long createConversation(ConversationRequest.Create request) {
@@ -110,8 +116,13 @@ public class ConversationService {
 		return aiClient.generateQuestions(request, userInfo);
 	}
 
-	public AiResponse.GeneratedReport generatedReport(AiRequest.ReportInfo request) {
-		return aiClient.generateReport(request);
+	public ConversationResponse.ReportAnalysis findReport(Long conversationId) {
+
+		ConversationReport report = conversationReportRepository.findByConversationId(conversationId)
+			.orElseThrow(ConversationNotFound::new);
+
+
+
 	}
 
 	@Transactional
@@ -153,6 +164,31 @@ public class ConversationService {
 			.build();
 
 		conversationCardSaveRepository.save(conversationCardSave);
+	}
+
+	@Transactional
+	public ConversationResponse.End endConversation(Long conversationId, ConversationRequest.End request) {
+		Conversation conversation = conversationRepository.findById(conversationId)
+			.orElseThrow(ConversationNotFound::new);
+
+		AiRequest.ReportInfo reportInfo = new AiRequest.ReportInfo(request.durationSeconds(), TOTAL_QUESTION_COUNT, request.numHearts(),
+			conversation.getCategory().getContent());
+
+		AiResponse.GeneratedReport generatedReport = aiClient.generateReport(reportInfo);
+
+		ConversationReport conversationReport = ConversationReport.builder()
+			.conversation(conversation)
+			.durationSeconds(request.durationSeconds())
+			.numQuestions(TOTAL_QUESTION_COUNT)
+			.numHearts(request.numHearts())
+			.comment(generatedReport.comment())
+			.nextRecommendedTopic(generatedReport.nextTopic())
+			.shareUuid(UUID.randomUUID().toString())
+			.build();
+
+		conversationReportRepository.save(conversationReport);
+
+		return new ConversationResponse.End(conversation.getId());
 	}
 
 	private User findUser() {

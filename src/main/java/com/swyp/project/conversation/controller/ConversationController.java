@@ -82,8 +82,8 @@ public class ConversationController {
 	@PatchMapping("/{conversationId}/end")
 	public ResponseEntity<ApiResponse<ConversationResponse.End>> endConversation(
 		@PathVariable Long conversationId, ConversationRequest.End request) {
-
-		return ResponseEntity.ok(ApiResponse.success());
+		ConversationResponse.End response = conversationService.endConversation(conversationId, request);
+		return ResponseEntity.ok(ApiResponse.success(response));
 	}
 
 	// @Operation(summary = "대화 참여자 목록 조회", description = "특정 대화의 참여자 목록을 조회합니다.")
@@ -95,7 +95,8 @@ public class ConversationController {
 	@Operation(summary = "분석 리포트 조회", description = "특정 대화의 기본 정보와 통계/분석 데이터를 조회합니다.")
 	@GetMapping("/{conversationId}/report/analysis")
 	public ResponseEntity<ApiResponse<ConversationResponse.ReportAnalysis>> getConversationReportAnalysis(@PathVariable Long conversationId){
-		return ResponseEntity.ok(ApiResponse.success());
+		ConversationResponse.ReportAnalysis response = conversationService.findReport(conversationId);
+		return ResponseEntity.ok(ApiResponse.success(response));
 	}
 
 	@Operation(summary = "내 대화 기록 목록 조회", description = "오프셋 기반 페이지네이션을 사용하여 자신이 참여했던 대화 목록을 조회합니다.")
