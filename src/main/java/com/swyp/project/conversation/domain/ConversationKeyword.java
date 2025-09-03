@@ -29,6 +29,4 @@ public class ConversationKeyword {
 	@Column(name = "is_predefined", nullable = false)
 	private boolean isPredefined;
 
-	@Column(name = "display_order")
-	private int displayOrder;
 }
