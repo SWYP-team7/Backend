@@ -37,6 +37,9 @@ public class ChatGptClient implements AiClient {
 
 	private static final String MODEL = "gpt-4.1";
 
+	private static final String CHAR_REGEX = "[^a-zA-Z0-9가-힣&?!.,\\s]";
+
+
 	private static final String PROMPT_TEMPLATE = """
 	당신은 '깊은 대화를 위한 질문 생성기'입니다. 
 	   아래 입력값을 기반으로 총 5개의 질문 세트를 만드세요 (각 세트 4문항, 총 20문항).
@@ -94,6 +97,57 @@ public class ChatGptClient implements AiClient {
 		  - JSON 데이터 형식
 		  - questions 배열 안에 text가 들어간다.
 		  - 응답은 한국어로 하고, ?를 제외한 기호는 사용하지 않는다.
+		""";
+
+	private static final String REPORT_PROMPT_TEMPLATE = """
+		당신은 "대화 분석가 겸 다음 대화 주제 추천가"입니다.
+		  
+		사용자가 제공한 데이터를 바탕으로 아래 두 가지 작업을 수행하세요:
+		  
+		1. 대화 분석 코멘트 작성
+		다음 데이터를 바탕으로 간단한 대화 분석 설명을 생성하세요.
+		  
+		[입력 데이터]
+		- 대화 시간(초): {seconds}
+		- 질문 수: {questions}
+		- 저장된 질문 수(하트): {hearts}
+		  
+		[분석 기준]
+		1. 질문 밀도 = 질문 수 ÷ (대화시간(초) ÷ 60)
+		   - 0.5 이하 → 질문은 적지만 깊은 대화 가능성
+		   - 0.5~1 → 차분하고 적절한 대화 흐름
+		   - 1~2 → 활발히 주고받았지만 깊이는 보통
+		   - 2 이상 → 얕게 빠르게 오간 대화
+		  
+		2. 하트 비율 = 하트 수 ÷ 질문 수
+		   - 0.7 이상 → 대부분 질문이 가치 있었음
+		   - 0.3~0.7 → 일부 질문만 의미 있었음
+		   - 0.3 이하 → 건진 질문이 적음
+		  
+		[출력 형식]
+		- 수치 요약: 대화시간, 질문 수, 하트 수 간단히 언급
+		- 대화 스타일: 질문 밀도 기준으로 해석
+		- 대화 건짐 정도: 하트 비율 기준으로 해석
+		- 종합 코멘트: 따뜻하고 긍정적인 톤으로, **90자 이내**로 정리
+		  
+		[예시 출력]
+		20분 동안 25개의 질문, 그중 10개가 저장되었습니다. 활발히 이야기를 주고받았지만, 절반 정도의 질문만이 의미 있게 다가왔던 균형 잡힌 시간이었어요.\s
+		  
+		2. 다음 대화 주제 추천
+		아래 제공된 5개의 대화 주제 중, 사용자가 이미 선택한 주제를 제외한 다른 주제 하나를 추천하세요.
+		  
+		[입력 데이터]
+		- 사용자가 이미 선택한 주제: {selectedTopic}
+		  
+		[추천 가능한 주제 목록]
+		- 가벼운 친목
+		- 자기 탐색
+		- 관계 심화
+		- 가치관 & 철학
+		- 도파민
+		  
+		[추천 기준]
+		- 무조건 추천 가능 주제 목록에서 추천을 하세요
 		""";
 
 	private static final String SCHEMA_JSON = """
@@ -157,7 +211,39 @@ public class ChatGptClient implements AiClient {
 		  }
 		""";
 
+	private static final String REPORT_SCHEMA_JSON = """
+		{
+		  "format": {
+			"type": "json_schema",
+			"name": "report",
+			"schema": {
+			  "type": "object",
+			  "properties": {
+				"comment": {
+				  "type": "string",
+				  "maxLength": 90
+				},
+				"nextTopic": {
+				  "type": "string",
+				  "enum": [
+					"가벼운 친목",
+					"자기 탐색",
+					"관계 심화",
+					"가치관 & 철학",
+					"도파민"
+				  ]
+				}
+			  },
+			  "required": ["comment", "nextTopic"],
+			  "additionalProperties": false
+			}
+		  }
+		}
+		""";
+
 	private static final Map<String, String> PROMPT_INPUT = Map.of("role", "system", "content", PROMPT_TEMPLATE);
+	private static final Map<String, String> REPORT_PROMPT_INPUT = Map.of("role", "system", "content",
+		REPORT_PROMPT_TEMPLATE);
 
 	public AiResponse.GeneratedQuestions generateQuestions(ConversationRequest.Create request, UserDto.Info userInfo) {
 		String requestBody = createRequestBody(request, userInfo);
@@ -266,5 +352,70 @@ public class ChatGptClient implements AiClient {
 
 		return Map.of("role", "user", "content", parsedUserInfo);
 	}
+
+	@Override
+	public AiResponse.GeneratedReport generateReport(AiRequest.ReportInfo request) {
+		String requestBody = createRequestBody(request);
+
+		String rawResponse = sendRequest(requestBody);
+
+		if (rawResponse == null || rawResponse.isBlank()) {
+			throw new ApiResponseException(ErrorCode.EMPTY_API_RESPONSE);
+		}
+
+		return parseReportResponse(rawResponse);
+	}
+
+	private AiResponse.GeneratedReport parseReportResponse(String rawResponse) {
+		AiResponse.GeneratedReport aiResponse;
+		try {
+			JsonNode root = objectMapper.readTree(rawResponse);
+			String text = root.at("/output/0/content/0/text").asText();
+			aiResponse = objectMapper.readValue(text, AiResponse.GeneratedReport.class);
+
+			log.debug("contentJson: {}", aiResponse);
+
+			return new AiResponse.GeneratedReport(
+				aiResponse.comment().replaceAll(CHAR_REGEX, "").trim(),
+				aiResponse.nextTopic().replaceAll(CHAR_REGEX, "").trim()
+			);
+
+		} catch (JsonProcessingException e) {
+			throw new InvalidFormatException(ErrorCode.INVALID_FORMAT);
+		}
+	}
+
+	private String createRequestBody(AiRequest.ReportInfo request){
+		List<Map<String, String>> input = new ArrayList<>();
+		input.add(REPORT_PROMPT_INPUT);
+		input.add(createReportInfoInput(request));
+
+		try {
+			String requestBody = objectMapper.writeValueAsString(Map.of(
+				"model", MODEL,
+				"input", input,
+				"text", objectMapper.readValue(REPORT_SCHEMA_JSON, new TypeReference<>() {
+				})
+			));
+
+			log.info("requestBody: {}", requestBody);
+
+			return requestBody;
+		} catch (JsonProcessingException e) {
+			throw new InvalidFormatException(ErrorCode.INVALID_FORMAT);
+		}
+	}
+
+	private Map<String, String> createReportInfoInput(AiRequest.ReportInfo request) {
+		String parsedReportInfo;
+		try{
+			parsedReportInfo = objectMapper.writeValueAsString(request);
+		} catch (JsonProcessingException e) {
+			throw new InvalidFormatException(ErrorCode.INVALID_FORMAT);
+		}
+
+		return Map.of("role", "user", "content", parsedReportInfo);
+	}
+
 }
 

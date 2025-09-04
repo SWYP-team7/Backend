@@ -32,13 +32,14 @@ public class ConversationResponse {
 
 	public record ReportAnalysis(
 		List<String> participantNames,
-		String category,
+		String topic,
 		List<String> keywords,
 		LocalDateTime createdAt,
 		int durationSeconds,
 		int numQuestions,
-		int numHearts
-		// 키워드 분석 추가
+		int numHearts,
+		String comment,
+		String nextTopic
 	) {
 	}
 

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.swyp.project.ai.dto.AiRequest;
 import com.swyp.project.ai.dto.AiResponse;
 import com.swyp.project.common.dto.ApiResponse;
 import com.swyp.project.conversation.dto.ConversationRequest;
@@ -38,6 +39,16 @@ public class ConversationController {
 	// 	AiResponse.GeneratedQuestions response = conversationService.generateQuestions(request);
 	// 	return ResponseEntity.accepted().body(ApiResponse.success(response));
 	// }
+
+	// @Operation(summary = "임시 리포트 생성 API", description = "ChatGpt 기능 확인용.")
+	// @PostMapping("/temp")
+	// public ResponseEntity<ApiResponse<AiResponse.GeneratedReport>> createReportTemp(
+	// 	@Valid  @RequestBody AiRequest.ReportInfo request) {
+	// 	AiResponse.GeneratedReport response = conversationService.generatedReport(request);
+	// 	return ResponseEntity.accepted().body(ApiResponse.success(response));
+	// }
+
+
 
 	@Operation(summary = "대화 생성", description = "새 대화 세션을 생성합니다.")
 	@PostMapping
@@ -71,8 +82,8 @@ public class ConversationController {
 	@PatchMapping("/{conversationId}/end")
 	public ResponseEntity<ApiResponse<ConversationResponse.End>> endConversation(
 		@PathVariable Long conversationId, ConversationRequest.End request) {
-
-		return ResponseEntity.ok(ApiResponse.success());
+		ConversationResponse.End response = conversationService.endConversation(conversationId, request);
+		return ResponseEntity.ok(ApiResponse.success(response));
 	}
 
 	// @Operation(summary = "대화 참여자 목록 조회", description = "특정 대화의 참여자 목록을 조회합니다.")
@@ -84,7 +95,8 @@ public class ConversationController {
 	@Operation(summary = "분석 리포트 조회", description = "특정 대화의 기본 정보와 통계/분석 데이터를 조회합니다.")
 	@GetMapping("/{conversationId}/report/analysis")
 	public ResponseEntity<ApiResponse<ConversationResponse.ReportAnalysis>> getConversationReportAnalysis(@PathVariable Long conversationId){
-		return ResponseEntity.ok(ApiResponse.success());
+		ConversationResponse.ReportAnalysis response = conversationService.findReport(conversationId);
+		return ResponseEntity.ok(ApiResponse.success(response));
 	}
 
 	@Operation(summary = "내 대화 기록 목록 조회", description = "오프셋 기반 페이지네이션을 사용하여 자신이 참여했던 대화 목록을 조회합니다.")

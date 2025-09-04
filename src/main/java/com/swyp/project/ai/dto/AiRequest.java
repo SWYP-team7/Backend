@@ -12,4 +12,12 @@ public class AiRequest {
 	) {
 	}
 
+	public record ReportInfo(
+		Integer seconds,
+		Integer questions,
+		Integer hearts,
+		String selectedTopic
+	){
+	}
+
 }
