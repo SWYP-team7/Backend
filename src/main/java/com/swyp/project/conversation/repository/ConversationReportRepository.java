@@ -8,4 +8,6 @@ import com.swyp.project.conversation.domain.ConversationReport;
 
 public interface ConversationReportRepository extends JpaRepository<ConversationReport, Long> {
 	Optional<ConversationReport> findByConversationId(Long conversationId);
+
+	Optional<ConversationReport> findByShareUuid(String shareUuid);
 }

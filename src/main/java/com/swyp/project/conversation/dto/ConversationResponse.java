@@ -39,6 +39,21 @@ public class ConversationResponse {
 		int numQuestions,
 		int numHearts,
 		String comment,
+		String nextTopic,
+		String shareUuid
+	) {
+	}
+
+	public record ReportAnalysisForShare(
+		String date,
+		String participantName,
+		int participantCount,
+		String topic,
+		List<String> keywords,
+		String durationFormatted,
+		int questionCount,
+		int heartCount,
+		String comment,
 		String nextTopic
 	) {
 	}
