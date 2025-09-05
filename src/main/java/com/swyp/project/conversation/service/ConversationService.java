@@ -1,8 +1,13 @@
 package com.swyp.project.conversation.service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -141,7 +146,8 @@ public class ConversationService {
 			report.getNumQuestions(),
 			report.getNumHearts(),
 			report.getComment(),
-			report.getNextRecommendedTopic()
+			report.getNextRecommendedTopic(),
+			report.getShareUuid()
 		);
 	}
 
@@ -213,5 +219,56 @@ public class ConversationService {
 
 	private User findUser() {
 		return userRepository.findBySocialId(UserContext.get().socialId()).orElseThrow(UserNotFoundException::new);
+	}
+
+	public ConversationResponse.ReportAnalysisForShare getReportByShareUuid(String shareUuid) {
+		ConversationReport report = conversationReportRepository.findByShareUuid(shareUuid)
+			.orElseThrow(ConversationReportNotFound::new);
+
+		Conversation conversation = report.getConversation();
+
+		Long userId = conversation.getUser().getId();
+		User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+		List<String> participantNames = participantRepository.findByConversationId(conversation.getId())
+			.stream()
+			.map(p -> p.getName())
+			.collect(Collectors.toList());
+
+		List<String> keywords = selectedConversationKeywordRepository.findByConversationId(conversation.getId())
+			.stream()
+			.map(sck -> sck.getConversationKeyword().getContent())
+			.toList();
+
+		String participantNameStr = getParticipantNameStr(participantNames, user.getName());
+		String duration = formatDuration(report.getDurationSeconds());
+
+		return new ConversationResponse.ReportAnalysisForShare(
+			conversation.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy.MM.dd H:mm")),
+			participantNameStr,
+			participantNames.size(),
+			conversation.getCategory().getContent(),
+			keywords,
+			duration,
+			20,
+			report.getNumHearts(),
+			report.getComment(),
+			report.getNextRecommendedTopic()
+		);
+	}
+
+	private String formatDuration(Integer seconds) {
+		int mins = seconds / 60;
+		int secs = seconds % 60;
+		return String.format("%d분 %d초", mins, secs);
+	}
+	private String getParticipantNameStr(List<String> participantNames, String userName) {
+		participantNames.remove(userName);
+
+		if (participantNames.size() == 1) {
+			return participantNames.getFirst();
+		} else if (participantNames.size() > 1) {
+			return participantNames.getFirst() + "...";
+		}
+		return "...";
 	}
 }
