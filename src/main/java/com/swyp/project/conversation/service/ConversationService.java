@@ -121,7 +121,6 @@ public class ConversationService {
 		return aiClient.generateQuestions(request, userInfo);
 	}
 
-
 	@Transactional(readOnly = true)
 	public ConversationResponse.ReportAnalysis findReport(Long conversationId) {
 
@@ -197,7 +196,8 @@ public class ConversationService {
 		Conversation conversation = conversationRepository.findById(conversationId)
 			.orElseThrow(ConversationNotFound::new);
 
-		AiRequest.ReportInfo reportInfo = new AiRequest.ReportInfo(request.durationSeconds(), TOTAL_QUESTION_COUNT, request.numHearts(),
+		AiRequest.ReportInfo reportInfo = new AiRequest.ReportInfo(request.durationSeconds(), TOTAL_QUESTION_COUNT,
+			request.numHearts(),
 			conversation.getCategory().getContent());
 
 		AiResponse.GeneratedReport generatedReport = aiClient.generateReport(reportInfo);
@@ -218,7 +218,7 @@ public class ConversationService {
 	}
 
 	private User findUser() {
-		return userRepository.findBySocialId(UserContext.get().socialId()).orElseThrow(UserNotFoundException::new);
+		return userRepository.findBySocialId(UserContext.get().id()).orElseThrow(UserNotFoundException::new);
 	}
 
 	public ConversationResponse.ReportAnalysisForShare getReportByShareUuid(String shareUuid) {
@@ -261,6 +261,7 @@ public class ConversationService {
 		int secs = seconds % 60;
 		return String.format("%d분 %d초", mins, secs);
 	}
+
 	private String getParticipantNameStr(List<String> participantNames, String userName) {
 		participantNames.remove(userName);
 

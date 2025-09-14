@@ -58,10 +58,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		}
 
 		// 토큰 유효성 검사
-		String socialId = authHeader.substring(BEARER.length());
+		String accessToken = authHeader.substring(BEARER.length());
 
 		try {
-			UserContext.set(new UserInfo(Long.valueOf(socialId)));
+			Claims claims = jwtUtil.validateToken(accessToken);
+			UserContext.set(new UserInfo(Long.valueOf(claims.getSubject())));
 		} catch (JwtValidationException e) {
 			writeJsonResponse(httpResponse, ApiResponse.failure(e.getMessage(), ErrorCode.INVALID_JWT_TOKEN.name()));
 			return;
@@ -69,7 +70,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 		try {
 			filterChain.doFilter(httpRequest, httpResponse);
-		}finally {
+		} finally {
 			UserContext.clear();
 		}
 	}

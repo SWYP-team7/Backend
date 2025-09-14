@@ -27,16 +27,16 @@ public class AuthController {
 	@PostMapping("/oauth/kakao")
 	public ResponseEntity<ApiResponse<Void>> signup(AuthRequest authRequest) {
 		// Implement signup logic here
-		authService.login(authRequest);
+		// authService.login(authRequest);
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 
-	// @Operation(
-	// 	summary = "임시 로그인",
-	// 	description = "JWT 발급"
-	// )
-	// @PostMapping("/oauth/temp-jwt")
-	// public ResponseEntity<ApiResponse<AuthResponse>> tempLogin() {
-	// 	return ResponseEntity.ok(ApiResponse.success(authService.tempLogin()));
-	// }
+	@Operation(
+		summary = "임시 로그인",
+		description = "JWT 발급"
+	)
+	@PostMapping("/oauth/temp-jwt")
+	public ResponseEntity<ApiResponse<AuthResponse>> tempLogin() {
+		return ResponseEntity.ok(ApiResponse.success(authService.tempLogin()));
+	}
 }

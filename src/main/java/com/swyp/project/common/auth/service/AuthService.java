@@ -17,16 +17,16 @@ public class AuthService {
 	private final JwtUtil jwtUtil;
 	private final UserRepository userRepository;
 
-	// public AuthResponse tempLogin(){
-	// 	User user = User.builder().id(1L).build();
-	// 	return new AuthResponse(jwtUtil.generateAccessToken(user), true);
-	// }
-	//
-	public void login(AuthRequest authRequest){
-		User user = userRepository.findBySocialId(authRequest.socialId())
-			.orElseGet(() -> userRepository.save(
-				User.builder()
-				.socialId(authRequest.socialId())
-				.build()));
+	public AuthResponse tempLogin(){
+		User user = User.builder().id(1L).build();
+		return new AuthResponse(jwtUtil.generateAccessToken(user), true);
 	}
+
+	// public void login(AuthRequest authRequest){
+	// 	User user = userRepository.findBySocialId(authRequest.jwt())
+	// 		.orElseGet(() -> userRepository.save(
+	// 			User.builder()
+	// 			.socialId(authRequest.jwt())
+	// 			.build()));
+	// }
 }

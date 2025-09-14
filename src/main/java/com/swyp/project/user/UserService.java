@@ -33,7 +33,7 @@ public class UserService {
 	private final UserProfileKeywordRepository userProfileKeywordRepository;
 
 	public UserResponse.ProfileStatus getProfileStatus() {
-		Long loggedInUserId = UserContext.get().socialId();
+		Long loggedInUserId = UserContext.get().id();
 
 		User user = findUser(loggedInUserId);
 		return new UserResponse.ProfileStatus(user.getProfileCompleted());
@@ -41,7 +41,7 @@ public class UserService {
 
 	@Transactional
 	public void upsertProfile(UserRequest.UpsertProfile request) {
-		Long loggedInUserId = UserContext.get().socialId();
+		Long loggedInUserId = UserContext.get().id();
 
 		User user = findUser(loggedInUserId);
 
@@ -77,7 +77,7 @@ public class UserService {
 	@Transactional(readOnly = true)
 	public UserResponse.ProfileKeywordByCategory getProfileKeyword() {
 
-		Long loggedInUserId = UserContext.get().socialId();
+		Long loggedInUserId = UserContext.get().id();
 		User user = findUser(loggedInUserId);
 
 		List<ProfileKeyword> keywords = profileKeywordRepository.findAll();
@@ -112,7 +112,7 @@ public class UserService {
 	}
 
 	public UserResponse.Summary getSummary() {
-		Long loggedInUserId = UserContext.get().socialId();
+		Long loggedInUserId = UserContext.get().id();
 
 		User user = findUser(loggedInUserId);
 		return UserResponse.Summary.builder()
@@ -123,7 +123,7 @@ public class UserService {
 	}
 
 	public UserResponse.Profile getProfile() {
-		Long loggedInUserId = UserContext.get().socialId();
+		Long loggedInUserId = UserContext.get().id();
 
 		User user = findUser(loggedInUserId);
 		return UserResponse.Profile.builder()
@@ -135,7 +135,7 @@ public class UserService {
 	}
 
 	public UserDto.Info getUserInfo(){
-		Long loggedInUserId = UserContext.get().socialId();
+		Long loggedInUserId = UserContext.get().id();
 
 		User user = findUser(loggedInUserId);
 
