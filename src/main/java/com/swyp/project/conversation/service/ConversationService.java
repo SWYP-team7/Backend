@@ -180,8 +180,7 @@ public class ConversationService {
 	public void saveConversationCard(Long conversationId, ConversationRequest.ConversationCard request) {
 		User user = findUser();
 		ConversationCard conversationCard = conversationCardRepository.findByConversationIdAndOrderIndexAndLevel(
-			conversationId, request.orderIndex(),
-			request.depth()).orElseThrow(ConversationCardNotFound::new);
+			conversationId, request.orderIndex(), request.depth()).orElseThrow(ConversationCardNotFound::new);
 
 		ConversationCardSave conversationCardSave = ConversationCardSave.builder()
 			.user(user)

@@ -64,13 +64,13 @@ public class ConversationController {
 		return ResponseEntity.accepted().body(ApiResponse.success(response));
 	}
 
-	// @Operation(summary = "카드 저장", description = "특정 질문 카드를 저장합니다. 로그인된 사용자를 기준으로 저장됩니다.")
-	// @PostMapping("/{conversationId}/saved-cards")
-	// public ResponseEntity<ApiResponse<Void>> saveCard(
-	// 	@PathVariable Long conversationId, @Valid @RequestBody ConversationRequest.ConversationCard request) {
-	// 	conversationService.saveConversationCard(conversationId, request);
-	// 	return ResponseEntity.ok(ApiResponse.success());
-	// }
+	@Operation(summary = "카드 저장", description = "특정 질문 카드를 저장합니다. 로그인된 사용자를 기준으로 저장됩니다.")
+	@PostMapping("/{conversationId}/saved-cards")
+	public ResponseEntity<ApiResponse<Void>> saveCard(
+		@PathVariable Long conversationId, @Valid @RequestBody ConversationRequest.ConversationCard request) {
+		conversationService.saveConversationCard(conversationId, request);
+		return ResponseEntity.ok(ApiResponse.success());
+	}
 
 	// @Operation(summary = "카드 저장 취소", description = "저장했던 질문 카드를 '저장함'에서 삭제합니다.")
 	// @DeleteMapping("/{conversationId}/saved-cards")
