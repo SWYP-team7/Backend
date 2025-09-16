@@ -1,9 +1,5 @@
 package com.swyp.project.conversation.domain;
 
-import java.time.LocalDateTime;
-
-import org.hibernate.annotations.CreationTimestamp;
-
 import com.swyp.project.user.domain.User;
 
 import jakarta.persistence.Column;
@@ -26,26 +22,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-@Table(name = "conversation")
-public class Conversation {
-
+@Table(name = "conversation_relationship")
+public class ConversationRelationship {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", nullable = false)
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "user_id", nullable = false)
-	private User user;
+	@JoinColumn(name = "conversation_id", nullable = false)
+	private Conversation conversation;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "category_id")
-	private Category category;
-
-	@CreationTimestamp
-	@Column(name = "created_at", nullable = false)
-	private LocalDateTime createdAt;
-
-	@Column(name = "ended_at")
-	private LocalDateTime endedAt;
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "relationship_id", nullable = false)
+	private Relationship relationship;
 }
