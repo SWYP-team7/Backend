@@ -10,7 +10,7 @@ public class ConversationRequest {
 
 	public record Create(
 		List<String> participantNames,
-		String relationship,
+		List<String> relationship,
 		String category,
 		List<String> keywords
 	) {}
