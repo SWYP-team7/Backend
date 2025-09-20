@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.swyp.project.common.auth.dto.AuthRequest;
 import com.swyp.project.common.auth.dto.AuthResponse;
+import com.swyp.project.common.auth.dto.KakaoUserInfo;
 import com.swyp.project.common.auth.service.AuthService;
 import com.swyp.project.common.dto.ApiResponse;
 
@@ -25,10 +26,9 @@ public class AuthController {
 		description = "카카오 인가 코드를 사용해서 로그인 또는 회원가입 처리"
 	)
 	@PostMapping("/oauth/kakao")
-	public ResponseEntity<ApiResponse<Void>> signup(AuthRequest authRequest) {
-		// Implement signup logic here
-		// authService.login(authRequest);
-		return ResponseEntity.ok(ApiResponse.success());
+	public ResponseEntity<ApiResponse<KakaoUserInfo>> signup(AuthRequest authRequest) {
+		KakaoUserInfo info = authService.login(authRequest);
+		return ResponseEntity.ok(ApiResponse.success(info));
 	}
 
 	@Operation(
