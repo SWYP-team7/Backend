@@ -241,7 +241,7 @@ public class ConversationService {
 	}
 
 	private User findUser() {
-		return userRepository.findBySocialId(UserContext.get().id()).orElseThrow(UserNotFoundException::new);
+		return userRepository.findById(UserContext.get().id()).orElseThrow(UserNotFoundException::new);
 	}
 
 	public ConversationResponse.ReportAnalysisForShare getReportByShareUuid(String shareUuid) {
