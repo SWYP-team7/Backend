@@ -51,6 +51,9 @@ public class User {
 	@Column(name = "social_id")
 	private Long socialId;
 
+	@Column(name = "is_initialized", nullable = false)
+	private boolean isInitialized;
+
 	@Column(name = "provider", length = 20)
 	private String provider;
 

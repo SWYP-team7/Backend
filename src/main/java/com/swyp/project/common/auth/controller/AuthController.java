@@ -26,9 +26,9 @@ public class AuthController {
 		description = "카카오 인가 코드를 사용해서 로그인 또는 회원가입 처리"
 	)
 	@PostMapping("/oauth/kakao")
-	public ResponseEntity<ApiResponse<KakaoUserInfo>> signup(AuthRequest authRequest) {
-		KakaoUserInfo info = authService.login(authRequest);
-		return ResponseEntity.ok(ApiResponse.success(info));
+	public ResponseEntity<ApiResponse<AuthResponse>> signup(AuthRequest authRequest) {
+		AuthResponse authResponse = authService.login(authRequest);
+		return ResponseEntity.ok(ApiResponse.success(authResponse));
 	}
 
 	@Operation(

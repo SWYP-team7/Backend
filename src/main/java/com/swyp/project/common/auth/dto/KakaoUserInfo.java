@@ -1,4 +1,4 @@
 package com.swyp.project.common.auth.dto;
 
-public record KakaoUserInfo(Long id) {
+public record KakaoUserInfo(Long socialId) {
 }
