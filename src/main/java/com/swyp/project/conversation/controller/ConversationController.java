@@ -45,12 +45,10 @@ public class ConversationController {
 	// 	return ResponseEntity.accepted().body(ApiResponse.success(response));
 	// }
 
-
-
 	@Operation(summary = "대화 생성", description = "새 대화 세션을 생성합니다.")
 	@PostMapping
 	public ResponseEntity<ApiResponse<ConversationResponse.Create>> createConversation(
-		@Valid  @RequestBody ConversationRequest.Create request) {
+		@Valid @RequestBody ConversationRequest.Create request) {
 
 		long conversationId = conversationService.createConversation(request);
 		AiResponse.GeneratedQuestions questions = conversationService.generateQuestions(request);
@@ -68,7 +66,6 @@ public class ConversationController {
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 
-
 	@Operation(summary = "대화 종료", description = "대화를 종료합니다.")
 	@PatchMapping("/{conversationId}/end")
 	public ResponseEntity<ApiResponse<ConversationResponse.End>> endConversation(
@@ -79,20 +76,22 @@ public class ConversationController {
 
 	@Operation(summary = "대화 참여자 목록 조회", description = "특정 대화의 참여자 목록을 조회합니다.")
 	@GetMapping("/{conversationId}/participants")
-	public ResponseEntity<ApiResponse<ConversationResponse.ParticipantInfos>> getConversationParticipants(@PathVariable Long conversationId){
+	public ResponseEntity<ApiResponse<ConversationResponse.ParticipantInfos>> getConversationParticipants(
+		@PathVariable Long conversationId) {
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 
 	@Operation(summary = "분석 리포트 조회", description = "특정 대화의 기본 정보와 통계/분석 데이터를 조회합니다.")
 	@GetMapping("/{conversationId}/report/analysis")
-	public ResponseEntity<ApiResponse<ConversationResponse.ReportAnalysis>> getConversationReportAnalysis(@PathVariable Long conversationId){
+	public ResponseEntity<ApiResponse<ConversationResponse.ReportAnalysis>> getConversationReportAnalysis(
+		@PathVariable Long conversationId) {
 		ConversationResponse.ReportAnalysis response = conversationService.findReport(conversationId);
 		return ResponseEntity.ok(ApiResponse.success(response));
 	}
 
 	@Operation(summary = "대화 기록 삭제", description = "특정 대화 기록을 삭제합니다.")
 	@DeleteMapping("/{conversationId}")
-	public ResponseEntity<ApiResponse<Void>> deleteConversation(@PathVariable Long conversationId){
+	public ResponseEntity<ApiResponse<Void>> deleteConversation(@PathVariable Long conversationId) {
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 
@@ -117,7 +116,4 @@ public class ConversationController {
 		conversationService.unsaveCard(conversationId, request);
 		return ResponseEntity.ok(ApiResponse.success());
 	}
-
-
-
 }

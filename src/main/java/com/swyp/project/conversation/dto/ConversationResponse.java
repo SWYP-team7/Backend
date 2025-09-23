@@ -42,7 +42,8 @@ public class ConversationResponse {
 		int numHearts,
 		String comment,
 		String nextTopic,
-		String shareUuid
+		String shareUuid,
+		String shareReportUrl
 	) {
 	}
 
@@ -130,6 +131,8 @@ public class ConversationResponse {
 	) {
 	}
 
-	public record PublicReportResponse() {
+	public record ReportResponse(
+		String shareUrl
+	) {
 	}
 }

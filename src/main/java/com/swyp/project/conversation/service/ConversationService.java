@@ -59,6 +59,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ConversationService {
 	public static final int TOTAL_QUESTION_COUNT = 20;
+	private static final String BASE_SHARE_URL = "http://damdam.r-e.kr/reports/";
+
 	private final UserService userService;
 	private final AiClient aiClient;
 	private final ConversationRepository conversationRepository;
@@ -174,7 +176,8 @@ public class ConversationService {
 			report.getNumHearts(),
 			report.getComment(),
 			report.getNextRecommendedTopic(),
-			report.getShareUuid()
+			report.getShareUuid(),
+			BASE_SHARE_URL + report.getShareUuid()
 		);
 	}
 
