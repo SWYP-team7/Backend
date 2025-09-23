@@ -18,7 +18,8 @@ public class ConversationRequest {
 
 	public record End(
 		Integer durationSeconds,
-		Integer numHearts
+		Integer numHearts,
+		List<ConversationRequest.ConversationCard> savedConversationCards
 	) {
 	}
 

@@ -234,6 +234,22 @@ public class ConversationService {
 
 	@Transactional
 	public ConversationResponse.End endConversation(Long conversationId, ConversationRequest.End request) {
+		// 카드 저장
+		User user = findUser();
+		List<ConversationRequest.ConversationCard> savedConversationCards = request.savedConversationCards();
+
+		for (ConversationRequest.ConversationCard cardRequest : savedConversationCards) {
+			ConversationCard card = conversationCardRepository.findByConversationIdAndOrderIndexAndLevel(
+				conversationId, cardRequest.orderIndex(), cardRequest.depth()).orElseThrow(ConversationCardNotFound::new);
+
+			ConversationCardSave save = ConversationCardSave.builder()
+				.user(user)
+				.conversationCard(card)
+				.build();
+
+			conversationCardSaveRepository.save(save);
+		}
+		// 리포트 생성
 		Conversation conversation = conversationRepository.findById(conversationId)
 			.orElseThrow(ConversationNotFound::new);
 
