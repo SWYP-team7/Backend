@@ -58,7 +58,7 @@ public class ConversationResponse {
 	) {
 	}
 
-	public record History(
+	public record Conversations(
 		List<Summary> conversations
 	) {
 	}

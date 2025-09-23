@@ -295,4 +295,13 @@ public class ConversationService {
 		}
 		return "...";
 	}
+
+	public ConversationResponse.Conversations findConversations() {
+
+		conversationRepository.findByUserId()
+	}
+
+	public ConversationResponse.SavedCards findSavedCards() {
+
+	}
 }
