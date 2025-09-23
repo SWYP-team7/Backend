@@ -58,13 +58,13 @@ public class ConversationController {
 		return ResponseEntity.accepted().body(ApiResponse.success(response));
 	}
 
-	@Operation(summary = "카드 저장", description = "특정 질문 카드를 저장합니다. 로그인된 사용자를 기준으로 저장됩니다.")
-	@PostMapping("/{conversationId}/saved-cards")
-	public ResponseEntity<ApiResponse<Void>> saveCard(
-		@PathVariable Long conversationId, @Valid @RequestBody ConversationRequest.ConversationCard request) {
-		conversationService.saveConversationCard(conversationId, request);
-		return ResponseEntity.ok(ApiResponse.success());
-	}
+	// @Operation(summary = "카드 저장", description = "특정 질문 카드를 저장합니다. 로그인된 사용자를 기준으로 저장됩니다.")
+	// @PostMapping("/{conversationId}/saved-cards")
+	// public ResponseEntity<ApiResponse<Void>> saveCard(
+	// 	@PathVariable Long conversationId, @Valid @RequestBody ConversationRequest.ConversationCard request) {
+	// 	conversationService.saveConversationCard(conversationId, request);
+	// 	return ResponseEntity.ok(ApiResponse.success());
+	// }
 
 	@Operation(summary = "대화 종료", description = "대화를 종료합니다.")
 	@PatchMapping("/{conversationId}/end")
@@ -109,18 +109,18 @@ public class ConversationController {
 		return ResponseEntity.ok(ApiResponse.success(response));
 	}
 
-	@Operation(summary = "대화 기록 삭제", description = "여러 대화 기록을 삭제합니다.")
+	@Operation(summary = "저장한 카드들을 제거합니다.", description = "저장된 여러 카드를 삭제합니다.")
 	@DeleteMapping("/me/cards/saves")
 	public ResponseEntity<ApiResponse<Void>> deleteConversation(@RequestBody ConversationRequest.Delete request){
 		conversationService.deleteSavedCards(request);
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 
-	@Operation(summary = "카드 저장 취소", description = "저장했던 질문 카드를 '저장함'에서 삭제합니다.")
-	@DeleteMapping("/{conversationId}/saved-cards")
-	public ResponseEntity<ApiResponse<Void>> unsaveCard(
-		@PathVariable Long conversationId, @Valid @RequestBody ConversationRequest.ConversationCard request) {
-		conversationService.unsaveCard(conversationId, request);
-		return ResponseEntity.ok(ApiResponse.success());
-	}
+	// @Operation(summary = "카드 저장 취소", description = "저장했던 질문 카드를 '저장함'에서 삭제합니다.")
+	// @DeleteMapping("/{conversationId}/saved-cards")
+	// public ResponseEntity<ApiResponse<Void>> unsaveCard(
+	// 	@PathVariable Long conversationId, @Valid @RequestBody ConversationRequest.ConversationCard request) {
+	// 	conversationService.unsaveCard(conversationId, request);
+	// 	return ResponseEntity.ok(ApiResponse.success());
+	// }
 }
