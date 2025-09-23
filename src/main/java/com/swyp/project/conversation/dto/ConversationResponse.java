@@ -4,8 +4,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.swyp.project.ai.dto.AiResponse;
+import com.swyp.project.conversation.domain.ConversationCard;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -62,13 +64,13 @@ public class ConversationResponse {
 		List<Summary> conversations
 	) {
 	}
+
 	public record Summary(
 		Long conversationId,
 		String title,
 		LocalDateTime createdAt,
 		int durationSeconds,
-		String category,
-		List<String> keywords
+		String category
 	) {}
 
 
@@ -77,11 +79,20 @@ public class ConversationResponse {
 	) {
 	}
 
+	@Builder
 	public record SavedCardInfo(
 		Long cardId,
 		String content,
-		List<String> keywords
-	) {}
+		String keyword
+	) {
+		public static SavedCardInfo from(ConversationCard conversationCard) {
+			return SavedCardInfo.builder()
+				.cardId(conversationCard.getId())
+				.content(conversationCard.getContent())
+				.keyword(conversationCard.getCardKeyword())
+				.build();
+		}
+	}
 
 	public record CursorInfo(
 		Long nextCursor,

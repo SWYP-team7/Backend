@@ -68,12 +68,6 @@ public class ConversationController {
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 
-	@Operation(summary = "카드 저장 취소", description = "저장했던 질문 카드를 '저장함'에서 삭제합니다.")
-	@DeleteMapping("/{conversationId}/saved-cards")
-	public ResponseEntity<ApiResponse<Void>> unsaveCard(
-		@PathVariable Long conversationId, @Valid @RequestBody ConversationRequest.ConversationCard request) {
-		return ResponseEntity.ok(ApiResponse.success());
-	}
 
 	@Operation(summary = "대화 종료", description = "대화를 종료합니다.")
 	@PatchMapping("/{conversationId}/end")
@@ -115,4 +109,15 @@ public class ConversationController {
 		ConversationResponse.SavedCards response = conversationService.findSavedCards();
 		return ResponseEntity.ok(ApiResponse.success(response));
 	}
+
+	@Operation(summary = "카드 저장 취소", description = "저장했던 질문 카드를 '저장함'에서 삭제합니다.")
+	@DeleteMapping("/{conversationId}/saved-cards")
+	public ResponseEntity<ApiResponse<Void>> unsaveCard(
+		@PathVariable Long conversationId, @Valid @RequestBody ConversationRequest.ConversationCard request) {
+		conversationService.unsaveCard(conversationId, request);
+		return ResponseEntity.ok(ApiResponse.success());
+	}
+
+
+
 }

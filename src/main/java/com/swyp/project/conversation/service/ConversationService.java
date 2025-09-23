@@ -4,7 +4,10 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -32,6 +35,7 @@ import com.swyp.project.conversation.domain.ConversationReport;
 import com.swyp.project.conversation.domain.Participant;
 import com.swyp.project.conversation.domain.Relationship;
 import com.swyp.project.conversation.domain.SelectedConversationKeyword;
+import com.swyp.project.conversation.dto.ConversationFlatRow;
 import com.swyp.project.conversation.dto.ConversationRequest;
 import com.swyp.project.conversation.dto.ConversationResponse;
 import com.swyp.project.conversation.repository.CategoryRepository;
@@ -217,6 +221,15 @@ public class ConversationService {
 	}
 
 	@Transactional
+	public void unsaveCard(Long conversationId, ConversationRequest.ConversationCard request) {
+
+		ConversationCard conversationCard = conversationCardRepository.findByConversationIdAndOrderIndexAndLevel(
+			conversationId, request.orderIndex(), request.depth()).orElseThrow(ConversationCardNotFound::new);
+
+		conversationCardSaveRepository.deleteByConversationCardId(conversationCard.getId());
+	}
+
+	@Transactional
 	public ConversationResponse.End endConversation(Long conversationId, ConversationRequest.End request) {
 		Conversation conversation = conversationRepository.findById(conversationId)
 			.orElseThrow(ConversationNotFound::new);
@@ -236,6 +249,8 @@ public class ConversationService {
 			.nextRecommendedTopic(generatedReport.nextTopic())
 			.shareUuid(UUID.randomUUID().toString())
 			.build();
+
+		conversation.end();
 
 		conversationReportRepository.save(conversationReport);
 
@@ -298,14 +313,57 @@ public class ConversationService {
 		return "...";
 	}
 
-	/*public ConversationResponse.Conversations findConversations() {
+	@Transactional(readOnly = true)
+	public ConversationResponse.Conversations findConversations() {
 		User user = findUser();
-		conversationRepository.findAllByUserId(user.getId());
+		List<ConversationFlatRow> rows = conversationRepository.findConversationRow(user.getId());
+
+		Map<Long, ConversationResponse.Summary> summaryMap = new LinkedHashMap<>();
+		Map<Long, List<String>> participantMap = new HashMap<>();
+
+		for (ConversationFlatRow row : rows) {
+			participantMap
+				.computeIfAbsent(row.getConversationId(), k -> new ArrayList<>())
+				.add(row.getParticipantName());
+
+			summaryMap.computeIfAbsent(
+				row.getConversationId(),
+				id -> new ConversationResponse.Summary(
+					id,
+					null,
+					row.getCreatedAt(),
+					row.getDurationSeconds(),
+					row.getCategory().getContent()
+				)
+			);
+		}
+
+		for (var entry : summaryMap.entrySet()) {
+			List<String> participants = participantMap.getOrDefault(entry.getKey(), List.of());
+			String title = getParticipantNameStr(new ArrayList<>(participants), user.getName());
+
+			ConversationResponse.Summary updated = new ConversationResponse.Summary(
+				entry.getValue().conversationId(),
+				title,
+				entry.getValue().createdAt(),
+				entry.getValue().durationSeconds(),
+				entry.getValue().category()
+			);
+			entry.setValue(updated);
+		}
+
+		return new ConversationResponse.Conversations(new ArrayList<>(summaryMap.values()));
 	}
 
+	@Transactional(readOnly = true)
 	public ConversationResponse.SavedCards findSavedCards() {
 		User user = findUser();
-		conversationCardSaveRepository.findAllByUserId(user.getId());
-	}*/
+		List<ConversationCardSave> savedCards = conversationCardSaveRepository.findAllByUserId(user.getId());
 
+		List<ConversationResponse.SavedCardInfo> cardList = savedCards.stream()
+			.map(card -> ConversationResponse.SavedCardInfo.from(card.getConversationCard()))
+			.toList();
+
+		return new ConversationResponse.SavedCards(cardList);
+	}
 }
