@@ -184,6 +184,7 @@ public class ConversationService {
 
 		for (int i = 0; i < questionList.size(); i++) {
 			AiResponse.QuestionList questions = questionList.get(i);
+			String keyword = String.join(", ", questions.keywords());
 			for (int j = 0; j < questions.questions().size(); j++) {
 				String content = questions.questions().get(j).text();
 				ConversationCard card = ConversationCard.builder()
@@ -192,6 +193,7 @@ public class ConversationService {
 					.level(j + 1)
 					.orderIndex(i + 1)
 					.source("OPEN_AI")
+					.cardKeyword(keyword)
 					.build();
 				conversationCards.add(card);
 			}
@@ -296,12 +298,14 @@ public class ConversationService {
 		return "...";
 	}
 
-	public ConversationResponse.Conversations findConversations() {
-
-		conversationRepository.findByUserId()
+	/*public ConversationResponse.Conversations findConversations() {
+		User user = findUser();
+		conversationRepository.findAllByUserId(user.getId());
 	}
 
 	public ConversationResponse.SavedCards findSavedCards() {
+		User user = findUser();
+		conversationCardSaveRepository.findAllByUserId(user.getId());
+	}*/
 
-	}
 }
