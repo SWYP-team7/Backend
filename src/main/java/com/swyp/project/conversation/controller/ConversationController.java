@@ -109,6 +109,13 @@ public class ConversationController {
 		return ResponseEntity.ok(ApiResponse.success(response));
 	}
 
+	@Operation(summary = "대화 기록 삭제", description = "여러 대화 기록을 삭제합니다.")
+	@DeleteMapping("/me/cards/saves")
+	public ResponseEntity<ApiResponse<Void>> deleteConversation(@RequestBody ConversationRequest.Delete request){
+		conversationService.deleteSavedCards(request);
+		return ResponseEntity.ok(ApiResponse.success());
+	}
+
 	@Operation(summary = "카드 저장 취소", description = "저장했던 질문 카드를 '저장함'에서 삭제합니다.")
 	@DeleteMapping("/{conversationId}/saved-cards")
 	public ResponseEntity<ApiResponse<Void>> unsaveCard(

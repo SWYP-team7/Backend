@@ -369,4 +369,21 @@ public class ConversationService {
 
 		return new ConversationResponse.SavedCards(cardList);
 	}
+
+	@Transactional
+	public void deleteSavedCards(ConversationRequest.Delete request) {
+		User user = findUser();
+		List<ConversationCard> cards = new ArrayList<>();
+
+		for (Long cardId : request.cardIds()) {
+			ConversationCard card = conversationCardRepository.findById(cardId)
+				.orElseThrow(ConversationCardNotFound::new);
+			cards.add(card);
+		}
+
+		List<ConversationCardSave> saves = conversationCardSaveRepository.findAllByUserIdAndConversationCardIn(
+			user.getId(), cards);
+
+		conversationCardSaveRepository.deleteAll(saves);
+	}
 }

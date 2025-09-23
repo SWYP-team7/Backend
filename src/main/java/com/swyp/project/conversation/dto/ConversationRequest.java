@@ -26,4 +26,8 @@ public class ConversationRequest {
 		int orderIndex,
 		int depth
 	) {}
+
+	public record Delete(
+		List<Long> cardIds
+	) {}
 }
