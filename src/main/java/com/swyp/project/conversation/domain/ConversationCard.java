@@ -49,4 +49,7 @@ public class ConversationCard {
 	@CreationTimestamp
 	@Column(name = "created_at", updatable = false)
 	private LocalDateTime createdAt;
+
+	@Column(name = "card_keyword", nullable = false)
+	private String cardKeyword;
 }
