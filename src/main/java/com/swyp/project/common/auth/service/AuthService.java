@@ -37,8 +37,9 @@ public class AuthService {
 					.provider("KAKAO")
 					.providerId("KAKAO")
 					.isInitialized(false)
+					.profileCompleted(false)
 					.build()));
 
-		return new AuthResponse(jwtUtil.generateAccessToken(user), user.isInitialized());
+		return new AuthResponse(jwtUtil.generateAccessToken(user), user.getProfileCompleted());
 	}
 }
