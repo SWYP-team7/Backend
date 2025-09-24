@@ -69,7 +69,7 @@ public class ConversationController {
 	@Operation(summary = "대화 종료", description = "대화를 종료합니다.")
 	@PatchMapping("/{conversationId}/end")
 	public ResponseEntity<ApiResponse<ConversationResponse.End>> endConversation(
-		@PathVariable Long conversationId, ConversationRequest.End request) {
+		@PathVariable Long conversationId, @RequestBody ConversationRequest.End request) {
 		ConversationResponse.End response = conversationService.endConversation(conversationId, request);
 		return ResponseEntity.ok(ApiResponse.success(response));
 	}
